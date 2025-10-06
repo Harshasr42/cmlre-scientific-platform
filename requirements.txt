@@ -1,0 +1,15 @@
+streamlit
+pandas
+numpy
+plotly
+folium
+streamlit-folium
+seaborn
+matplotlib
+scikit-learn
+opencv-python
+pillow
+scipy
+requests
+python-dateutil
+altair
