@@ -4,12 +4,5 @@ numpy
 plotly
 folium
 streamlit-folium
-seaborn
-matplotlib
-scikit-learn
-opencv-python-headless
-pillow
-scipy
 requests
 python-dateutil
-altair

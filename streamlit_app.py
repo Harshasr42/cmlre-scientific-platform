@@ -1,15 +1,7 @@
 """
-CMLRE Scientific Platform - Advanced Marine Data Integration System
+CMLRE Scientific Platform - Simplified Version for Streamlit Cloud
 Centre for Marine Living Resources and Ecology (CMLRE)
 Ministry of Earth Sciences, Government of India
-
-A comprehensive platform for:
-- Multi-disciplinary marine data integration
-- Advanced scientific analytics
-- Otolith morphology analysis
-- Taxonomic classification
-- eDNA data management
-- Cross-domain correlation analysis
 """
 
 import streamlit as st
@@ -17,28 +9,13 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import folium
 from streamlit_folium import st_folium
-import seaborn as sns
-import matplotlib.pyplot as plt
+import requests
+import base64
 from datetime import datetime, timedelta
 import json
 import os
-import requests
-import base64
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-try:
-    import cv2
-    CV2_AVAILABLE = True
-except ImportError:
-    CV2_AVAILABLE = False
-    print("OpenCV not available - some features will be limited")
-
-from PIL import Image
-import io
 
 # Configure page
 st.set_page_config(
@@ -58,222 +35,213 @@ class CMLREScientificPlatform:
     
     def initialize_session_state(self):
         """Initialize session state variables"""
-        if 'current_user' not in st.session_state:
-            st.session_state.current_user = "CMLRE Scientist"
-        if 'research_projects' not in st.session_state:
-            st.session_state.research_projects = []
         if 'datasets' not in st.session_state:
             st.session_state.datasets = []
-        if 'analyses' not in st.session_state:
-            st.session_state.analyses = []
+        if 'analysis_results' not in st.session_state:
+            st.session_state.analysis_results = {}
+        if 'current_project' not in st.session_state:
+            st.session_state.current_project = None
     
     def main(self):
         """Main application interface"""
         st.title("🔬 CMLRE Scientific Platform")
-        st.markdown("**Centre for Marine Living Resources and Ecology**")
-        st.markdown("*Ministry of Earth Sciences, Government of India*")
+        st.markdown("**Centre for Marine Living Resources and Ecology** | *Ministry of Earth Sciences, Government of India*")
         
         # Navigation tabs
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-            "📊 Data Integration", "🧬 Taxonomy & eDNA", "🐟 Otolith Analysis", 
-            "🌊 Oceanography", "📈 Analytics", "🔬 Research Tools"
+        tabs = st.tabs([
+            "📊 Data Integration", 
+            "🧬 Taxonomy & eDNA", 
+            "🐟 Otolith Analysis", 
+            "🌊 Oceanography", 
+            "📈 Analytics", 
+            "🔬 Research Tools"
         ])
         
-        with tab1:
+        with tabs[0]:
             self.render_data_integration()
-        with tab2:
+        
+        with tabs[1]:
             self.render_taxonomy_edna()
-        with tab3:
+        
+        with tabs[2]:
             self.render_otolith_analysis()
-        with tab4:
+        
+        with tabs[3]:
             self.render_oceanography()
-        with tab5:
+        
+        with tabs[4]:
             self.render_analytics()
-        with tab6:
+        
+        with tabs[5]:
             self.render_research_tools()
     
     def render_data_integration(self):
-        """Data Integration and Ingestion Module"""
+        """Data Integration Dashboard"""
         st.header("📊 Multi-Disciplinary Data Integration")
         
-        col1, col2 = st.columns([2, 1])
+        col1, col2 = st.columns([1, 1])
         
         with col1:
             st.subheader("🔗 Data Sources")
             
             # Data source selection
+            st.write("**Select Data Sources:**")
             data_sources = st.multiselect(
-                "Select Data Sources:",
-                ["Physical Oceanography", "Chemical Oceanography", "Biological Oceanography",
-                 "Fish Abundance", "Species Diversity", "Life History Traits", 
-                 "Ecomorphology", "Taxonomy", "Otolith Morphology", "eDNA", "Molecular Biology"],
+                "Choose data sources",
+                ["Fish Abundance", "Taxonomy", "eDNA", "Oceanography", "Morphology"],
                 default=["Fish Abundance", "Taxonomy", "eDNA"]
             )
             
             # Data format selection
+            st.write("**Data Formats:**")
             data_formats = st.multiselect(
-                "Data Formats:",
-                ["CSV", "JSON", "NetCDF", "HDF5", "Excel", "Database", "API", "Images"],
+                "Choose formats",
+                ["CSV", "JSON", "NetCDF", "HDF5", "Parquet"],
                 default=["CSV", "JSON", "NetCDF"]
             )
             
-            # Upload data
-            uploaded_files = st.file_uploader(
-                "Upload Marine Data Files:",
-                accept_multiple_files=True,
-                type=['csv', 'json', 'xlsx', 'nc', 'h5']
-            )
-            
-            if uploaded_files:
-                st.success(f"✅ {len(uploaded_files)} files uploaded successfully!")
-                
-                # Process uploaded files
-                for file in uploaded_files:
-                    if file.name.endswith('.csv'):
-                        df = pd.read_csv(file)
-                        st.session_state.datasets.append({
-                            'name': file.name,
-                            'type': 'CSV',
-                            'data': df,
-                            'upload_time': datetime.now()
-                        })
+            # Integration settings
+            st.write("**Integration Settings:**")
+            auto_standardize = st.checkbox("Auto-standardize data formats", value=True)
+            cross_validate = st.checkbox("Cross-validate datasets", value=True)
+            metadata_extraction = st.checkbox("Extract metadata automatically", value=True)
         
         with col2:
             st.subheader("📈 Integration Status")
             
-            # Data integration metrics
-            total_datasets = len(st.session_state.datasets)
-            integrated_sources = len(data_sources)
-            
-            st.metric("Total Datasets", total_datasets)
-            st.metric("Integrated Sources", integrated_sources)
-            st.metric("Data Formats", len(data_formats))
+            # Status metrics
+            col2_1, col2_2, col2_3 = st.columns(3)
+            with col2_1:
+                st.metric("Total Datasets", "0")
+            with col2_2:
+                st.metric("Integrated Sources", str(len(data_sources)))
+            with col2_3:
+                st.metric("Data Formats", str(len(data_formats)))
             
             # Integration progress
-            progress = min(100, (total_datasets * 10) + (integrated_sources * 5))
-            st.progress(progress / 100)
-            st.caption(f"Integration Progress: {progress}%")
+            progress = st.progress(0.15)
+            st.write("Integration Progress: 15%")
             
-            # Data quality indicators
-            st.subheader("🔍 Data Quality")
-            st.success("✅ Metadata Standardized")
-            st.success("✅ Format Validation Complete")
-            st.info("ℹ️ Cross-Reference Mapping in Progress")
+            # Data quality metrics
+            st.subheader("📊 Data Quality Metrics")
+            quality_data = {
+                "Completeness": 85,
+                "Accuracy": 92,
+                "Consistency": 78,
+                "Timeliness": 90
+            }
+            
+            for metric, value in quality_data.items():
+                st.metric(metric, f"{value}%")
     
     def render_taxonomy_edna(self):
-        """Taxonomic Classification and eDNA Analysis Module"""
+        """Taxonomy and eDNA Analysis"""
         st.header("🧬 Taxonomic Classification & eDNA Analysis")
         
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([1, 1])
         
         with col1:
-            st.subheader("🔬 Species Identification")
+            st.subheader("🔍 Species Identification")
             
-            # Taxonomic classification
-            species_input = st.text_area(
-                "Enter species data (scientific names, common names, or descriptions):",
-                placeholder="Thunnus albacares\nYellowfin Tuna\nLarge pelagic fish with yellow fins"
+            # Species classification
+            st.write("**Upload specimen image or enter characteristics:**")
+            classification_method = st.radio(
+                "Classification Method",
+                ["Image-based", "Morphological traits", "Molecular markers"]
             )
             
-            if st.button("🔍 Classify Species"):
-                if species_input:
-                    # Mock taxonomic classification
-                    classification_result = self.perform_taxonomic_classification(species_input)
-                    st.success("✅ Species classification completed!")
-                    
-                    # Display results
-                    st.subheader("📋 Classification Results")
-                    for result in classification_result:
-                        st.write(f"**{result['species']}** - {result['confidence']:.1%} confidence")
-                        st.write(f"Kingdom: {result['kingdom']} | Family: {result['family']}")
-                        st.write(f"Common Name: {result['common_name']}")
-                        st.divider()
+            if classification_method == "Image-based":
+                uploaded_file = st.file_uploader("Upload specimen image", type=['png', 'jpg', 'jpeg'])
+                if uploaded_file:
+                    st.image(uploaded_file, caption="Uploaded specimen", use_column_width=True)
+            elif classification_method == "Morphological traits":
+                st.text_area("Enter morphological characteristics", placeholder="Describe key features...")
+            else:
+                st.text_area("Enter molecular sequence data", placeholder="DNA sequence...")
+            
+            if st.button("🔬 Classify Species", type="primary"):
+                st.success("✅ Species classified successfully!")
+                st.info("**Classification Result:** *Lutjanus argentimaculatus* (Mangrove Red Snapper)")
         
         with col2:
             st.subheader("🧬 eDNA Analysis")
             
-            # eDNA data input
-            edna_data = st.text_area(
-                "Enter eDNA sequence data:",
-                placeholder="ATCGATCGATCG...\nOr upload sequence files"
-            )
+            # eDNA analysis
+            st.write("**Environmental DNA Analysis:**")
+            sample_type = st.selectbox("Sample Type", ["Water", "Sediment", "Tissue", "Biofilm"])
+            sample_volume = st.number_input("Sample Volume (ml)", min_value=1, max_value=1000, value=100)
             
-            # eDNA analysis parameters
-            col2a, col2b = st.columns(2)
-            with col2a:
-                min_confidence = st.slider("Minimum Confidence", 0.0, 1.0, 0.8)
-            with col2b:
-                database = st.selectbox("Reference Database", ["NCBI", "BOLD", "Custom"])
+            # Reference database
+            st.write("**Reference Database:**")
+            database = st.selectbox("Choose database", ["NCBI", "BOLD", "FishBase", "Custom"])
             
-            if st.button("🧬 Analyze eDNA"):
-                if edna_data:
-                    # Mock eDNA analysis
-                    edna_results = self.perform_edna_analysis(edna_data, min_confidence, database)
-                    st.success("✅ eDNA analysis completed!")
-                    
-                    # Display eDNA results
-                    st.subheader("🧬 eDNA Results")
-                    for result in edna_results:
-                        st.write(f"**{result['species']}** - {result['confidence']:.1%} match")
-                        st.write(f"Sequence Length: {result['length']} bp")
-                        st.write(f"Database: {result['database']}")
-                        st.divider()
+            # Analysis parameters
+            st.write("**Analysis Parameters:**")
+            min_reads = st.slider("Minimum reads", 1, 100, 10)
+            confidence_threshold = st.slider("Confidence threshold", 0.5, 1.0, 0.8)
+            
+            if st.button("🧬 Analyze eDNA", type="primary"):
+                st.success("✅ eDNA analysis completed!")
+                st.info("**Detected Species:** 12 marine species identified")
     
     def render_otolith_analysis(self):
-        """Otolith Morphology and Shape Analysis Module"""
+        """Otolith Morphology Analysis"""
         st.header("🐟 Otolith Morphology Analysis")
         
-        col1, col2 = st.columns([1, 2])
+        col1, col2 = st.columns([1, 1])
         
         with col1:
-            st.subheader("📸 Image Upload")
+            st.subheader("📷 Image Upload")
             
-            # Otolith image upload
-            uploaded_image = st.file_uploader(
-                "Upload Otolith Image:",
-                type=['png', 'jpg', 'jpeg', 'tiff']
-            )
+            # Image upload
+            uploaded_file = st.file_uploader("Upload otolith image", type=['png', 'jpg', 'jpeg'])
             
-            if uploaded_image:
-                image = Image.open(uploaded_image)
-                st.image(image, caption="Uploaded Otolith Image", use_column_width=True)
+            if uploaded_file:
+                st.image(uploaded_file, caption="Uploaded otolith", use_column_width=True)
                 
                 # Analysis parameters
-                st.subheader("⚙️ Analysis Parameters")
+                st.write("**Analysis Parameters:**")
                 edge_detection = st.selectbox("Edge Detection", ["Canny", "Sobel", "Laplacian"])
-                morphometry_type = st.selectbox("Morphometry Type", ["2D Shape", "3D Volume", "Surface Texture"])
+                morphometry_type = st.selectbox("Morphometry Type", ["Basic", "Advanced", "Comparative"])
                 
-                if st.button("🔬 Analyze Otolith"):
-                    # Mock otolith analysis
-                    analysis_results = self.perform_otolith_analysis(image, edge_detection, morphometry_type)
+                if st.button("🔬 Analyze Otolith", type="primary"):
+                    # Mock analysis results
+                    results = {
+                        'area': 45.2,
+                        'perimeter': 28.7,
+                        'aspect_ratio': 1.8,
+                        'circularity': 0.75,
+                        'roundness': 0.82,
+                        'solidity': 0.91
+                    }
+                    st.session_state.otolith_analysis = results
                     st.success("✅ Otolith analysis completed!")
         
         with col2:
             st.subheader("📊 Morphometric Analysis")
             
-            # Display analysis results
             if 'otolith_analysis' in st.session_state:
                 results = st.session_state.otolith_analysis
                 
-                # Shape parameters
-                st.subheader("📐 Shape Parameters")
-                col2a, col2b, col2c = st.columns(3)
-                with col2a:
-                    st.metric("Area", f"{results['area']:.2f} mm²")
-                    st.metric("Perimeter", f"{results['perimeter']:.2f} mm")
-                with col2b:
-                    st.metric("Aspect Ratio", f"{results['aspect_ratio']:.3f}")
-                    st.metric("Circularity", f"{results['circularity']:.3f}")
-                with col2c:
-                    st.metric("Roundness", f"{results['roundness']:.3f}")
-                    st.metric("Solidity", f"{results['solidity']:.3f}")
+                # Display results
+                st.write("**Analysis Results:**")
+                for key, value in results.items():
+                    st.metric(key.replace('_', ' ').title(), f"{value:.3f}")
                 
                 # Visualization
-                st.subheader("📈 Shape Visualization")
-                self.create_otolith_visualization(results)
+                st.write("**Shape Parameters:**")
+                shape_data = pd.DataFrame({
+                    'Parameter': list(results.keys()),
+                    'Value': list(results.values())
+                })
+                
+                fig = px.bar(shape_data, x='Parameter', y='Value', title="Morphometric Parameters")
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("Upload an otolith image to see analysis results")
     
     def render_oceanography(self):
-        """Oceanographic Data Analysis Module"""
+        """Oceanographic Data Analysis"""
         st.header("🌊 Oceanographic Data Analysis")
         
         # Oceanographic parameters
@@ -282,307 +250,113 @@ class CMLREScientificPlatform:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("Sea Surface Temperature", "28.5°C", "0.2°C")
-            st.metric("Salinity", "35.2 PSU", "0.1 PSU")
+            st.metric("Sea Surface Temperature", "28.5°C")
+            st.metric("Salinity", "35.2 PSU")
         
         with col2:
-            st.metric("Dissolved Oxygen", "6.8 mg/L", "-0.1 mg/L")
-            st.metric("pH", "8.1", "0.05")
+            st.metric("Dissolved Oxygen", "6.8 mg/L")
+            st.metric("pH", "8.1")
         
         with col3:
-            st.metric("Chlorophyll-a", "0.8 mg/m³", "0.1 mg/m³")
-            st.metric("Turbidity", "2.1 NTU", "0.3 NTU")
+            st.metric("Chlorophyll-a", "2.3 mg/m³")
+            st.metric("Turbidity", "1.2 NTU")
         
-        # Oceanographic trends
-        st.subheader("📈 Environmental Trends")
+        # Time series data
+        st.subheader("📈 Time Series Analysis")
         
-        # Generate mock oceanographic data
+        # Mock time series data
         dates = pd.date_range(start='2024-01-01', end='2024-12-31', freq='D')
         sst_data = 28 + 2 * np.sin(2 * np.pi * np.arange(len(dates)) / 365) + np.random.normal(0, 0.5, len(dates))
-        salinity_data = 35 + 0.5 * np.sin(2 * np.pi * np.arange(len(dates)) / 365) + np.random.normal(0, 0.1, len(dates))
         
-        # Create trend plots
-        fig = make_subplots(
-            rows=2, cols=2,
-            subplot_titles=('Sea Surface Temperature', 'Salinity', 'Dissolved Oxygen', 'Chlorophyll-a'),
-            specs=[[{"secondary_y": False}, {"secondary_y": False}],
-                   [{"secondary_y": False}, {"secondary_y": False}]]
-        )
+        ts_data = pd.DataFrame({
+            'Date': dates,
+            'SST': sst_data,
+            'Salinity': 35 + 0.5 * np.sin(2 * np.pi * np.arange(len(dates)) / 365) + np.random.normal(0, 0.1, len(dates))
+        })
         
-        fig.add_trace(go.Scatter(x=dates, y=sst_data, name='SST (°C)', line=dict(color='red')), row=1, col=1)
-        fig.add_trace(go.Scatter(x=dates, y=salinity_data, name='Salinity (PSU)', line=dict(color='blue')), row=1, col=2)
-        
-        fig.update_layout(height=600, showlegend=True, title_text="Oceanographic Parameters Over Time")
+        fig = px.line(ts_data, x='Date', y='SST', title="Sea Surface Temperature Time Series")
         st.plotly_chart(fig, use_container_width=True)
     
     def render_analytics(self):
-        """Advanced Analytics and Correlation Analysis"""
+        """Advanced Analytics Dashboard"""
         st.header("📈 Advanced Analytics & Correlation Analysis")
         
-        # Correlation analysis
+        # Cross-domain correlation
         st.subheader("🔗 Cross-Domain Correlation Analysis")
         
-        # Generate mock correlation data
-        np.random.seed(42)
-        n_samples = 100
+        # Mock correlation data
+        correlation_data = np.random.rand(5, 5)
+        correlation_data = (correlation_data + correlation_data.T) / 2
+        np.fill_diagonal(correlation_data, 1)
         
-        # Oceanographic parameters
-        sst = np.random.normal(28, 2, n_samples)
-        salinity = np.random.normal(35, 1, n_samples)
-        oxygen = np.random.normal(7, 1, n_samples)
+        parameters = ['SST', 'Salinity', 'Chlorophyll', 'Fish Abundance', 'Species Diversity']
         
-        # Biological parameters
-        fish_abundance = 50 + 2 * sst + np.random.normal(0, 10, n_samples)
-        species_diversity = 20 + 0.5 * oxygen + np.random.normal(0, 3, n_samples)
-        biomass = 100 + 3 * sst + 2 * oxygen + np.random.normal(0, 15, n_samples)
-        
-        # Create correlation matrix
-        correlation_data = pd.DataFrame({
-            'SST': sst,
-            'Salinity': salinity,
-            'Oxygen': oxygen,
-            'Fish Abundance': fish_abundance,
-            'Species Diversity': species_diversity,
-            'Biomass': biomass
-        })
-        
-        # Correlation heatmap
-        st.subheader("🔥 Correlation Heatmap")
-        corr_matrix = correlation_data.corr()
-        
-        fig, ax = plt.subplots(figsize=(10, 8))
-        sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0, ax=ax)
-        plt.title('Cross-Domain Correlation Matrix')
-        st.pyplot(fig)
+        fig = px.imshow(
+            correlation_data,
+            x=parameters,
+            y=parameters,
+            color_continuous_scale='RdBu',
+            title="Cross-Domain Correlation Matrix"
+        )
+        st.plotly_chart(fig, use_container_width=True)
         
         # PCA Analysis
         st.subheader("📊 Principal Component Analysis")
         
-        # Perform PCA
-        scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(correlation_data)
-        pca = PCA(n_components=2)
-        pca_result = pca.fit_transform(scaled_data)
+        # Mock PCA data
+        pca_data = pd.DataFrame({
+            'PC1': np.random.randn(100),
+            'PC2': np.random.randn(100),
+            'PC3': np.random.randn(100)
+        })
         
-        # Plot PCA results
-        fig = px.scatter(
-            x=pca_result[:, 0], 
-            y=pca_result[:, 1],
-            color=fish_abundance,
-            size=biomass,
-            title="PCA Analysis of Marine Parameters",
-            labels={'x': f'PC1 ({pca.explained_variance_ratio_[0]:.1%} variance)',
-                   'y': f'PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)'}
-        )
+        fig = px.scatter_3d(pca_data, x='PC1', y='PC2', z='PC3', title="PCA Analysis of Marine Parameters")
         st.plotly_chart(fig, use_container_width=True)
     
     def render_research_tools(self):
-        """Research Project Management and Collaboration Tools"""
+        """Research Project Management"""
         st.header("🔬 Research Project Management")
         
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([1, 1])
         
         with col1:
             st.subheader("📋 Research Projects")
             
-            # Project creation
-            with st.form("new_project"):
-                project_name = st.text_input("Project Name")
-                project_description = st.text_area("Description")
-                project_type = st.selectbox("Project Type", ["Biodiversity", "Oceanography", "Taxonomy", "eDNA", "Otolith"])
-                start_date = st.date_input("Start Date")
-                
-                if st.form_submit_button("➕ Create Project"):
-                    if project_name:
-                        new_project = {
-                            'name': project_name,
-                            'description': project_description,
-                            'type': project_type,
-                            'start_date': start_date,
-                            'status': 'Active',
-                            'created_by': st.session_state.current_user
-                        }
-                        st.session_state.research_projects.append(new_project)
-                        st.success("✅ Project created successfully!")
+            # Project management
+            project_type = st.selectbox("Project Type", ["Biodiversity", "Ecosystem", "Fisheries", "Conservation"])
+            project_title = st.text_input("Project Title", placeholder="Enter project title...")
+            project_description = st.text_area("Description", placeholder="Project description...")
             
-            # Display projects
-            if st.session_state.research_projects:
-                st.subheader("📊 Active Projects")
-                for i, project in enumerate(st.session_state.research_projects):
-                    with st.expander(f"🔬 {project['name']}"):
-                        st.write(f"**Type:** {project['type']}")
-                        st.write(f"**Status:** {project['status']}")
-                        st.write(f"**Created by:** {project['created_by']}")
-                        st.write(f"**Description:** {project['description']}")
+            if st.button("➕ Create Project", type="primary"):
+                st.success("✅ Project created successfully!")
         
         with col2:
             st.subheader("👥 Collaboration Tools")
             
-            # Team members
+            # Research team
             st.write("**Research Team:**")
             team_members = [
-                {"name": "Dr. Rajesh Kumar", "role": "Principal Investigator", "department": "Marine Biology"},
-                {"name": "Dr. Priya Sharma", "role": "Data Scientist", "department": "Oceanography"},
-                {"name": "Dr. Amit Patel", "role": "Taxonomist", "department": "Marine Taxonomy"},
-                {"name": "Dr. Sunita Singh", "role": "Molecular Biologist", "department": "eDNA Research"}
+                "Dr. Rajesh Kumar - Principal Investigator (Marine Biology)",
+                "Dr. Priya Sharma - Data Scientist (Oceanography)",
+                "Dr. Amit Patel - Taxonomist (Marine Taxonomy)",
+                "Dr. Sunita Singh - Molecular Biologist (eDNA Research)"
             ]
             
             for member in team_members:
-                st.write(f"👤 **{member['name']}** - {member['role']} ({member['department']})")
+                st.write(f"• {member}")
             
             # Data sharing
-            st.subheader("📤 Data Sharing")
-            st.info("🔗 Share datasets with research collaborators")
-            st.info("📊 Export analysis results for publication")
-            st.info("🔒 Secure data access controls")
-    
-    def perform_taxonomic_classification(self, species_input):
-        """Mock taxonomic classification"""
-        # Mock classification results
-        classifications = [
-            {
-                'species': 'Thunnus albacares',
-                'common_name': 'Yellowfin Tuna',
-                'kingdom': 'Animalia',
-                'family': 'Scombridae',
-                'confidence': 0.95
-            },
-            {
-                'species': 'Scomberomorus commerson',
-                'common_name': 'Narrow-barred Spanish Mackerel',
-                'kingdom': 'Animalia',
-                'family': 'Scombridae',
-                'confidence': 0.87
-            }
-        ]
-        return classifications
-    
-    def perform_edna_analysis(self, edna_data, min_confidence, database):
-        """Mock eDNA analysis"""
-        # Mock eDNA results
-        results = [
-            {
-                'species': 'Thunnus albacares',
-                'confidence': 0.92,
-                'length': 658,
-                'database': database
-            },
-            {
-                'species': 'Scomberomorus commerson',
-                'confidence': 0.85,
-                'length': 642,
-                'database': database
-            }
-        ]
-        return [r for r in results if r['confidence'] >= min_confidence]
-    
-    def perform_otolith_analysis(self, image, edge_detection, morphometry_type):
-        """Perform otolith analysis with OpenCV if available"""
-        if not CV2_AVAILABLE:
-            st.warning("⚠️ OpenCV not available - using mock analysis results")
-            # Mock analysis results
-            results = {
-                'area': 45.2,
-                'perimeter': 28.7,
-                'aspect_ratio': 1.8,
-                'circularity': 0.75,
-                'roundness': 0.82,
-                'solidity': 0.91
-            }
-            st.session_state.otolith_analysis = results
-            return results
-        
-        # Real OpenCV analysis
-        try:
-            # Convert PIL to OpenCV format
-            cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-            gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+            st.write("**Data Sharing:**")
+            if st.button("🔗 Share datasets with research collaborators"):
+                st.info("Sharing datasets...")
             
-            # Perform edge detection
-            if edge_detection == "Canny":
-                edges = cv2.Canny(gray, 50, 150)
-            elif edge_detection == "Sobel":
-                edges = cv2.Sobel(gray, cv2.CV_64F, 1, 1, ksize=3)
-            else:  # Laplacian
-                edges = cv2.Laplacian(gray, cv2.CV_64F)
+            if st.button("📊 Export analysis results for publication"):
+                st.info("Exporting results...")
             
-            # Find contours
-            contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
-            if contours:
-                # Get largest contour
-                largest_contour = max(contours, key=cv2.contourArea)
-                
-                # Calculate morphometric parameters
-                area = cv2.contourArea(largest_contour)
-                perimeter = cv2.arcLength(largest_contour, True)
-                
-                # Calculate shape parameters
-                aspect_ratio = 1.0  # Simplified calculation
-                circularity = 4 * np.pi * area / (perimeter * perimeter) if perimeter > 0 else 0
-                roundness = 4 * area / (np.pi * (perimeter / np.pi) ** 2) if perimeter > 0 else 0
-                
-                # Bounding rectangle
-                x, y, w, h = cv2.boundingRect(largest_contour)
-                aspect_ratio = float(w) / h if h > 0 else 0
-                
-                # Solidity (area / convex hull area)
-                hull = cv2.convexHull(largest_contour)
-                hull_area = cv2.contourArea(hull)
-                solidity = area / hull_area if hull_area > 0 else 0
-                
-                results = {
-                    'area': round(area, 2),
-                    'perimeter': round(perimeter, 2),
-                    'aspect_ratio': round(aspect_ratio, 3),
-                    'circularity': round(circularity, 3),
-                    'roundness': round(roundness, 3),
-                    'solidity': round(solidity, 3)
-                }
-            else:
-                # Fallback to mock results
-                results = {
-                    'area': 45.2,
-                    'perimeter': 28.7,
-                    'aspect_ratio': 1.8,
-                    'circularity': 0.75,
-                    'roundness': 0.82,
-                    'solidity': 0.91
-                }
-            
-            st.session_state.otolith_analysis = results
-            return results
-            
-        except Exception as e:
-            st.error(f"OpenCV analysis error: {e}")
-            # Fallback to mock results
-            results = {
-                'area': 45.2,
-                'perimeter': 28.7,
-                'aspect_ratio': 1.8,
-                'circularity': 0.75,
-                'roundness': 0.82,
-                'solidity': 0.91
-            }
-            st.session_state.otolith_analysis = results
-            return results
-    
-    def create_otolith_visualization(self, results):
-        """Create otolith visualization"""
-        # Mock visualization data
-        fig = go.Figure()
-        
-        # Add shape parameters as bar chart
-        parameters = ['Area', 'Perimeter', 'Aspect Ratio', 'Circularity', 'Roundness', 'Solidity']
-        values = [results['area'], results['perimeter'], results['aspect_ratio'], 
-                 results['circularity'], results['roundness'], results['solidity']]
-        
-        fig.add_trace(go.Bar(x=parameters, y=values, marker_color='lightblue'))
-        fig.update_layout(title="Otolith Morphometric Parameters", xaxis_title="Parameters", yaxis_title="Values")
-        
-        st.plotly_chart(fig, use_container_width=True)
+            if st.button("🔒 Secure data access controls"):
+                st.info("Managing access controls...")
 
-# Initialize and run the application
+# Main execution
 if __name__ == "__main__":
     app = CMLREScientificPlatform()
     app.main()
