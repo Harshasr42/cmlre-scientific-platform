@@ -47,7 +47,7 @@ class CMLREScientificPlatform:
     
     def __init__(self):
         """Initialize the CMLRE platform"""
-        self.api_base_url = os.getenv("API_BASE_URL", "https://cmlre-backend.up.railway.app")
+        self.api_base_url = os.getenv("API_BASE_URL", "https://cmlre-backend-production.up.railway.app")
         self.initialize_session_state()
     
     def initialize_session_state(self):
