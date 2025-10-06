@@ -25,13 +25,14 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import json
 import os
+import requests
+import base64
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import cv2
 from PIL import Image
 import io
-import base64
 
 # Configure page
 st.set_page_config(
@@ -46,6 +47,7 @@ class CMLREScientificPlatform:
     
     def __init__(self):
         """Initialize the CMLRE platform"""
+        self.api_base_url = os.getenv("API_BASE_URL", "https://cmlre-backend.up.railway.app")
         self.initialize_session_state()
     
     def initialize_session_state(self):
