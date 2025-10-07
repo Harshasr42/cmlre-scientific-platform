@@ -64,33 +64,80 @@ class CMLREScientificPlatform:
         
         # Initialize with sample datasets for demonstration
         if not st.session_state.datasets:
+            # Create realistic CSV data for oceanographic data
+            oceanographic_data = """latitude,longitude,depth,temperature,salinity,oxygen,chlorophyll_a,ph,date
+12.50,74.00,10.2,28.55,35.21,5.82,0.53,8.11,2024-01-15
+12.61,74.12,20.5,27.91,35.15,5.58,0.61,8.05,2024-01-16
+12.73,74.25,30.8,27.30,35.08,5.35,0.70,8.00,2024-01-17
+12.84,74.37,41.1,26.75,35.02,5.12,0.78,7.95,2024-01-18
+12.96,74.49,51.4,26.20,34.95,4.90,0.87,7.90,2024-01-19
+13.08,74.61,61.7,25.65,34.89,4.67,0.96,7.85,2024-01-20
+13.19,74.73,72.0,25.10,34.82,4.45,1.05,7.80,2024-01-21
+13.31,74.85,82.3,24.55,34.76,4.22,1.14,7.75,2024-01-22
+13.42,74.97,92.6,24.00,34.69,4.00,1.23,7.70,2024-01-23
+13.54,75.09,102.9,23.45,34.63,3.77,1.32,7.65,2024-01-24"""
+            
+            # Create realistic CSV data for fish abundance
+            fish_abundance_data = """species,latitude,longitude,abundance,biomass_kg,length_cm,weight_kg,date,method
+Scomberomorus commerson,12.00,74.00,50,250.5,120.3,5.1,2024-01-15,Trawl
+Lutjanus argentimaculatus,12.10,74.10,30,150.2,80.1,3.2,2024-01-16,Gillnet
+Epinephelus coioides,12.20,74.20,75,300.8,150.5,7.8,2024-01-17,Hook & Line
+Scomberomorus commerson,12.30,74.30,45,220.1,115.0,4.9,2024-01-18,Trawl
+Lutjanus argentimaculatus,12.40,74.40,35,160.7,85.2,3.5,2024-01-19,Gillnet
+Epinephelus coioides,12.50,74.50,60,240.6,140.2,6.2,2024-01-20,Hook & Line
+Scomberomorus commerson,12.60,74.60,55,275.3,125.7,5.5,2024-01-21,Trawl
+Lutjanus argentimaculatus,12.70,74.70,40,180.4,90.8,3.8,2024-01-22,Gillnet
+Epinephelus coioides,12.80,74.80,70,280.9,145.6,7.1,2024-01-23,Hook & Line
+Scomberomorus commerson,12.90,74.90,48,235.7,118.9,4.7,2024-01-24,Trawl"""
+            
+            # Create realistic CSV data for eDNA
+            edna_data = """sample_id,species_A_reads,species_B_reads,species_C_reads,diversity_index,shannon_index,latitude,longitude,date
+sample_001,1200,500,300,0.85,2.51,12.00,74.00,2024-01-15
+sample_002,800,1500,200,0.92,2.83,12.10,74.10,2024-01-16
+sample_003,2500,100,800,0.78,2.15,12.20,74.20,2024-01-17
+sample_004,150,2000,100,0.95,3.10,12.30,74.30,2024-01-18
+sample_005,3000,700,1500,0.88,2.65,12.40,74.40,2024-01-19
+sample_006,1800,1200,600,0.91,2.78,12.50,74.50,2024-01-20
+sample_007,2200,800,400,0.87,2.62,12.60,74.60,2024-01-21
+sample_008,900,1800,300,0.93,2.89,12.70,74.70,2024-01-22
+sample_009,2800,600,1200,0.89,2.71,12.80,74.80,2024-01-23
+sample_010,1600,1400,500,0.90,2.75,12.90,74.90,2024-01-24"""
+            
+            # Convert CSV strings to DataFrames
+            import pandas as pd
+            import io
+            
+            oceanographic_df = pd.read_csv(io.StringIO(oceanographic_data))
+            fish_abundance_df = pd.read_csv(io.StringIO(fish_abundance_data))
+            edna_df = pd.read_csv(io.StringIO(edna_data))
+            
             st.session_state.datasets = [
                 {
                     'name': 'Arabian Sea Oceanographic Data',
                     'type': 'Oceanographic',
-                    'records': 1250,
-                    'columns': ['temperature', 'salinity', 'oxygen', 'ph', 'latitude', 'longitude', 'date'],
+                    'records': len(oceanographic_df),
+                    'columns': list(oceanographic_df.columns),
                     'quality_score': 94.5,
                     'validation': {'valid': True, 'message': 'High quality oceanographic data'},
-                    'data': 'Sample oceanographic measurements from Arabian Sea'
+                    'data': oceanographic_df
                 },
                 {
                     'name': 'Marine Fish Abundance Survey',
                     'type': 'Biodiversity',
-                    'records': 850,
-                    'columns': ['species', 'latitude', 'longitude', 'abundance', 'date', 'method', 'size_cm'],
+                    'records': len(fish_abundance_df),
+                    'columns': list(fish_abundance_df.columns),
                     'quality_score': 91.2,
                     'validation': {'valid': True, 'message': 'Valid fish abundance data'},
-                    'data': 'Fish abundance data from marine surveys'
+                    'data': fish_abundance_df
                 },
                 {
                     'name': 'eDNA Sequencing Results',
                     'type': 'Molecular',
-                    'records': 3200,
-                    'columns': ['sequence_id', 'species', 'confidence', 'read_count', 'sample_location'],
+                    'records': len(edna_df),
+                    'columns': list(edna_df.columns),
                     'quality_score': 88.7,
                     'validation': {'valid': True, 'message': 'High quality eDNA sequences'},
-                    'data': 'Environmental DNA sequencing results'
+                    'data': edna_df
                 }
             ]
         
