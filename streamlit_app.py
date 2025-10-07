@@ -358,7 +358,71 @@ Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count,44.3,1200"""
         with col1:
             st.subheader("🔍 Species Identification")
             
-            # Species classification
+            # Demo section for species identification
+            with st.expander("🎯 Demo Species Identification", expanded=True):
+                st.write("**Try the demo with sample data:**")
+                
+                # Demo specimen image
+                import base64
+                from io import BytesIO
+                from PIL import Image, ImageDraw
+                
+                # Create a simple fish specimen image
+                img = Image.new('RGB', (300, 200), color='lightblue')
+                draw = ImageDraw.Draw(img)
+                
+                # Draw fish shape
+                draw.ellipse([50, 80, 250, 120], fill='silver', outline='black', width=2)
+                draw.polygon([(250, 100), (280, 90), (280, 110)], fill='silver', outline='black')
+                draw.ellipse([80, 90, 100, 110], fill='black')  # eye
+                draw.arc([120, 95, 180, 105], 0, 180, fill='black', width=2)  # gill
+                
+                # Convert to base64
+                buffer = BytesIO()
+                img.save(buffer, format='PNG')
+                img_str = base64.b64encode(buffer.getvalue()).decode()
+                
+                col_demo1, col_demo2 = st.columns(2)
+                with col_demo1:
+                    st.download_button(
+                        label="📥 Download Demo Fish Image",
+                        data=base64.b64decode(img_str),
+                        file_name="demo_fish_specimen.png",
+                        mime="image/png"
+                    )
+                
+                with col_demo2:
+                    if st.button("🔬 Run Demo Classification", type="primary", key="demo_species_classification"):
+                        demo_species_result = {
+                            'species': 'Lutjanus argentimaculatus',
+                            'confidence': 92,
+                            'common_name': 'Mangrove Red Snapper',
+                            'family': 'Lutjanidae',
+                            'genus': 'Lutjanus',
+                            'habitat': 'Mangrove forests and coral reefs',
+                            'distribution': 'Indo-Pacific region',
+                            'conservation_status': 'Least Concern'
+                        }
+                        
+                        st.session_state.taxonomy_results = demo_species_result
+                        st.success("✅ Demo species classification completed!")
+                        
+                        # Show results
+                        st.write("**Classification Results:**")
+                        st.info(f"**Species:** {demo_species_result['species']}")
+                        st.metric("Confidence", f"{demo_species_result['confidence']}%")
+                        
+                        col_info1, col_info2 = st.columns(2)
+                        with col_info1:
+                            st.write(f"**Common Name:** {demo_species_result['common_name']}")
+                            st.write(f"**Family:** {demo_species_result['family']}")
+                            st.write(f"**Genus:** {demo_species_result['genus']}")
+                        with col_info2:
+                            st.write(f"**Habitat:** {demo_species_result['habitat']}")
+                            st.write(f"**Distribution:** {demo_species_result['distribution']}")
+                            st.write(f"**Conservation Status:** {demo_species_result['conservation_status']}")
+            
+            # Regular species classification
             st.write("**Upload specimen image or enter characteristics:**")
             classification_method = st.radio(
                 "Classification Method",
@@ -660,6 +724,35 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                     st.write("**Species:** Lutjanus argentimaculatus")
                     st.write("**Age:** 2-3 years")
                     st.write("**Size:** 45.2 mm² area")
+                    
+                    # Create a simple otolith image data (base64 encoded)
+                    import base64
+                    from io import BytesIO
+                    from PIL import Image, ImageDraw
+                    
+                    # Create a simple otolith-like image
+                    img = Image.new('RGB', (200, 150), color='white')
+                    draw = ImageDraw.Draw(img)
+                    
+                    # Draw otolith shape
+                    draw.ellipse([20, 20, 180, 130], outline='black', width=2)
+                    draw.ellipse([40, 40, 160, 110], outline='gray', width=1)
+                    # Add growth rings
+                    for i in range(3):
+                        radius = 30 + i * 15
+                        draw.ellipse([100-radius, 75-radius, 100+radius, 75+radius], outline='darkgray', width=1)
+                    
+                    # Convert to base64
+                    buffer = BytesIO()
+                    img.save(buffer, format='PNG')
+                    img_str = base64.b64encode(buffer.getvalue()).decode()
+                    
+                    st.download_button(
+                        label="📥 Download Demo Otolith Image",
+                        data=base64.b64decode(img_str),
+                        file_name="demo_otolith_specimen.png",
+                        mime="image/png"
+                    )
                 
                 with col_demo2:
                     if st.button("🔬 Run Demo Analysis", type="primary", key="demo_otolith_analysis"):
@@ -682,9 +775,17 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                         
                         # Show detailed results
                         st.write("**Morphometric Analysis Results:**")
-                        for key, value in demo_otolith_result.items():
-                            if key not in ['age_estimate', 'growth_rings', 'species_likelihood', 'confidence']:
-                                st.metric(key.replace('_', ' ').title(), f"{value:.3f}")
+                        
+                        # Show numeric metrics
+                        col_metrics1, col_metrics2 = st.columns(2)
+                        with col_metrics1:
+                            st.metric("Area", f"{demo_otolith_result['area']:.3f}")
+                            st.metric("Perimeter", f"{demo_otolith_result['perimeter']:.3f}")
+                            st.metric("Aspect Ratio", f"{demo_otolith_result['aspect_ratio']:.3f}")
+                        with col_metrics2:
+                            st.metric("Circularity", f"{demo_otolith_result['circularity']:.3f}")
+                            st.metric("Roundness", f"{demo_otolith_result['roundness']:.3f}")
+                            st.metric("Solidity", f"{demo_otolith_result['solidity']:.3f}")
                         
                         st.write("**Additional Information:**")
                         st.write(f"**Age Estimate:** {demo_otolith_result['age_estimate']}")
