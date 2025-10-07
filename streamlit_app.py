@@ -1823,7 +1823,7 @@ Epinephelus coioides,12.6,74.6,8,2024-01-01,visual_count,38.7,980""")
         st.write("4. **Run analysis** to see realistic results")
         st.write("5. **Compare** with the expected results shown above")
         
-        st.success("**🎉 The platform will provide accurate, meaningful analysis for these sample files!**")
+        st.success("**🎯 Platform Interface Demo - Upload these sample files to explore the complete workflow and interface. ML models are ready for integration!**")
 
 # Main execution
 if __name__ == "__main__":
