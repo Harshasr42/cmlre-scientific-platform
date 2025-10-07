@@ -1742,12 +1742,132 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
     def perform_cluster_analysis(self):
         """Perform cluster analysis"""
         st.subheader("🔍 Cluster Analysis Results")
-        st.info("Cluster analysis requires numerical data. Please ensure your datasets contain numerical columns.")
+        
+        # Get the first dataset for analysis
+        if st.session_state.datasets:
+            dataset = st.session_state.datasets[0]  # Use first dataset
+            data_df = dataset.get('data')
+            
+            if data_df is not None:
+                st.write(f"**Analyzing:** {dataset['name']}")
+                st.write(f"**Data shape:** {data_df.shape}")
+                
+                # Show numerical columns
+                numerical_cols = data_df.select_dtypes(include=np.number).columns.tolist()
+                st.write(f"**Numerical columns:** {numerical_cols}")
+                
+                if numerical_cols:
+                    # Perform actual cluster analysis
+                    from sklearn.cluster import KMeans
+                    import matplotlib.pyplot as plt
+                    
+                    # Use first few numerical columns for clustering
+                    cluster_data = data_df[numerical_cols[:4]].dropna()
+                    
+                    if len(cluster_data) > 0:
+                        # Perform K-means clustering
+                        kmeans = KMeans(n_clusters=3, random_state=42)
+                        clusters = kmeans.fit_predict(cluster_data)
+                        
+                        # Show results
+                        st.success("✅ Cluster analysis completed successfully!")
+                        st.write(f"**Number of clusters:** 3")
+                        st.write(f"**Data points analyzed:** {len(cluster_data)}")
+                        st.write(f"**Features used:** {list(cluster_data.columns)}")
+                        
+                        # Show cluster centers
+                        st.write("**Cluster Centers:**")
+                        centers_df = pd.DataFrame(kmeans.cluster_centers_, columns=cluster_data.columns)
+                        st.dataframe(centers_df)
+                        
+                        # Show cluster distribution
+                        cluster_counts = pd.Series(clusters).value_counts().sort_index()
+                        st.write("**Cluster Distribution:**")
+                        for i, count in cluster_counts.items():
+                            st.write(f"• Cluster {i}: {count} points")
+                        
+                        # Add to analysis results
+                        analysis_result = {
+                            'type': 'Cluster Analysis',
+                            'dataset': dataset['name'],
+                            'clusters': 3,
+                            'points': len(cluster_data),
+                            'features': list(cluster_data.columns),
+                            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        st.session_state.analysis_results.append(analysis_result)
+                        
+                    else:
+                        st.error("No valid data points for clustering")
+                else:
+                    st.error("No numerical columns found in dataset")
+            else:
+                st.error("No data available for analysis")
+        else:
+            st.error("No datasets available for analysis")
     
     def perform_time_series_analysis(self):
         """Perform time series analysis"""
         st.subheader("📈 Time Series Analysis Results")
-        st.info("Time series analysis requires temporal data. Please ensure your datasets contain date/time columns.")
+        
+        # Get the first dataset for analysis
+        if st.session_state.datasets:
+            dataset = st.session_state.datasets[0]  # Use first dataset
+            data_df = dataset.get('data')
+            
+            if data_df is not None:
+                st.write(f"**Analyzing:** {dataset['name']}")
+                st.write(f"**Data shape:** {data_df.shape}")
+                
+                # Check for date columns
+                date_cols = data_df.select_dtypes(include=['datetime64', 'object']).columns.tolist()
+                st.write(f"**Date columns:** {date_cols}")
+                
+                # Look for 'date' column specifically
+                if 'date' in data_df.columns:
+                    # Convert date column to datetime
+                    data_df['date'] = pd.to_datetime(data_df['date'])
+                    
+                    # Get numerical columns for time series
+                    numerical_cols = data_df.select_dtypes(include=np.number).columns.tolist()
+                    
+                    if numerical_cols:
+                        st.success("✅ Time series analysis completed successfully!")
+                        
+                        # Show time series data
+                        st.write("**Time Series Data:**")
+                        time_series_data = data_df[['date'] + numerical_cols[:3]].dropna()
+                        st.dataframe(time_series_data.head(10))
+                        
+                        # Show time range
+                        st.write(f"**Time Range:** {time_series_data['date'].min()} to {time_series_data['date'].max()}")
+                        st.write(f"**Data Points:** {len(time_series_data)}")
+                        st.write(f"**Variables:** {numerical_cols[:3]}")
+                        
+                        # Show basic statistics
+                        st.write("**Statistical Summary:**")
+                        stats_df = time_series_data[numerical_cols[:3]].describe()
+                        st.dataframe(stats_df)
+                        
+                        # Add to analysis results
+                        analysis_result = {
+                            'type': 'Time Series Analysis',
+                            'dataset': dataset['name'],
+                            'time_range': f"{time_series_data['date'].min()} to {time_series_data['date'].max()}",
+                            'points': len(time_series_data),
+                            'variables': numerical_cols[:3],
+                            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        st.session_state.analysis_results.append(analysis_result)
+                        
+                    else:
+                        st.error("No numerical columns found for time series analysis")
+                else:
+                    st.error("No date column found in dataset")
+            else:
+                st.error("No data available for analysis")
+        else:
+            st.error("No datasets available for analysis")
     
     def render_research_tools(self):
         """Research Project Management"""
