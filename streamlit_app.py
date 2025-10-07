@@ -318,15 +318,15 @@ Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count,44.3,1200"""
                                 st.info(dataset['data'])
                         
                         with col_actions:
-                            if st.button(f"📈 Analyze", key=f"analyze_{i}"):
+                            if st.button(f"📈 Analyze", key=f"analyze_dataset_{i}"):
                                 st.info(f"Running analysis on {dataset['name']}...")
                                 # Add analysis logic here
                             
-                            if st.button(f"📥 Export", key=f"export_{i}"):
+                            if st.button(f"📥 Export", key=f"export_dataset_{i}"):
                                 st.info(f"Exporting {dataset['name']}...")
                                 # Add export logic here
                             
-                            if st.button(f"🗑️ Remove", key=f"remove_{i}"):
+                            if st.button(f"🗑️ Remove", key=f"remove_dataset_{i}"):
                                 st.session_state.datasets.pop(i)
                                 st.success(f"Removed {dataset['name']}")
                                 st.rerun()
@@ -1863,10 +1863,10 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                             
                             col_contact, col_remove = st.columns(2)
                             with col_contact:
-                                if st.button(f"📧 Contact", key=f"contact_{i}"):
+                                if st.button(f"📧 Contact", key=f"contact_team_{i}"):
                                     st.info(f"📧 Contacting {member['name']} at {member['email']}")
                             with col_remove:
-                                if st.button(f"🗑️ Remove", key=f"remove_{i}"):
+                                if st.button(f"🗑️ Remove", key=f"remove_team_{i}"):
                                     st.session_state.current_project['team_members'].pop(i)
                                     st.success(f"✅ {member['name']} removed from team")
                                     st.rerun()
