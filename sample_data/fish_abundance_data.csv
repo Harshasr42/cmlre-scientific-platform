@@ -1,0 +1,11 @@
+species,latitude,longitude,abundance,date,method
+Lutjanus argentimaculatus,12.5,74.5,15,2024-01-01,visual_count
+Epinephelus coioides,12.6,74.6,8,2024-01-01,visual_count
+Siganus canaliculatus,12.4,74.4,23,2024-01-01,visual_count
+Lutjanus argentimaculatus,12.7,74.7,12,2024-01-02,visual_count
+Epinephelus coioides,12.5,74.5,6,2024-01-02,visual_count
+Siganus canaliculatus,12.6,74.6,19,2024-01-02,visual_count
+Lutjanus argentimaculatus,12.4,74.4,18,2024-01-03,visual_count
+Epinephelus coioides,12.7,74.7,10,2024-01-03,visual_count
+Siganus canaliculatus,12.5,74.5,21,2024-01-03,visual_count
+Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count
