@@ -260,8 +260,13 @@ class CMLREScientificPlatform:
                         if uploaded_image:
                             result = self.perform_species_classification(uploaded_image)
                             st.session_state.taxonomy_results = result
-                            st.success("✅ Species classified successfully!")
-                            st.info(f"**Classification Result:** {result['species']} ({result['confidence']}% confidence)")
+                            
+                            if 'error' in result:
+                                st.error(f"❌ {result['error']}")
+                                st.warning(f"**{result['message']}**")
+                            else:
+                                st.success("✅ Species classified successfully!")
+                                st.info(f"**Classification Result:** {result['species']} ({result['confidence']}% confidence)")
                         else:
                             st.warning("⚠️ Please upload an image first!")
                 else:
@@ -301,36 +306,91 @@ class CMLREScientificPlatform:
                 if edna_file:
                     result = self.perform_edna_analysis(edna_file, sample_type, database, min_reads, confidence_threshold)
                     st.session_state.edna_results = result
-                    st.success("✅ eDNA analysis completed!")
-                    st.info(f"**Detected Species:** {result['species_count']} marine species identified")
+                    
+                    if 'error' in result:
+                        st.error(f"❌ {result['error']}")
+                        st.warning(f"**{result['message']}**")
+                    else:
+                        st.success("✅ eDNA analysis completed!")
+                        st.info(f"**Detected Species:** {result['species_count']} marine species identified")
                 else:
                     st.warning("⚠️ Please upload eDNA sequence data first!")
     
     def perform_species_classification(self, image):
         """Perform species classification on uploaded image"""
-        # Mock classification based on image analysis
-        # In real implementation, this would use ML models
-        return {
-            'species': 'Lutjanus argentimaculatus',
-            'common_name': 'Mangrove Red Snapper',
-            'confidence': 87.5,
-            'family': 'Lutjanidae',
-            'genus': 'Lutjanus'
-        }
+        try:
+            # Validate image content
+            img = Image.open(image)
+            img_array = np.array(img)
+            
+            # Check if image is valid for marine species analysis
+            if not self.validate_marine_specimen_image(img_array):
+                return {
+                    'error': 'Invalid specimen image',
+                    'message': 'Please upload a clear image of a marine fish specimen'
+                }
+            
+            # Real analysis would go here - for now, return validation error
+            return {
+                'error': 'Analysis not available',
+                'message': 'Species classification requires trained ML models. Please contact CMLRE for model access.'
+            }
+            
+        except Exception as e:
+            return {
+                'error': 'Image processing failed',
+                'message': f'Could not process image: {str(e)}'
+            }
+    
+    def validate_marine_specimen_image(self, img_array):
+        """Validate if image is suitable for marine species analysis"""
+        # Basic validation - check image properties
+        if len(img_array.shape) != 3:
+            return False
+        
+        # Check if image has reasonable dimensions
+        height, width = img_array.shape[:2]
+        if height < 100 or width < 100:
+            return False
+        
+        # Check if image is not too dark or too bright
+        mean_brightness = np.mean(img_array)
+        if mean_brightness < 30 or mean_brightness > 220:
+            return False
+        
+        return True
+    
+    def validate_edna_file(self, file):
+        """Validate eDNA sequence file"""
+        try:
+            content = file.read().decode('utf-8')
+            file.seek(0)  # Reset file pointer
+            
+            # Check for sequence file indicators
+            if file.name.endswith('.fasta') or file.name.endswith('.fa'):
+                return '>' in content or 'ATCG' in content.upper()
+            elif file.name.endswith('.fastq') or file.name.endswith('.fq'):
+                return '@' in content and '+' in content
+            elif file.name.endswith('.txt'):
+                return any(char in content.upper() for char in ['A', 'T', 'C', 'G'])
+            else:
+                return False
+        except:
+            return False
     
     def perform_edna_analysis(self, file, sample_type, database, min_reads, confidence_threshold):
         """Perform eDNA analysis"""
-        # Mock eDNA analysis
-        # In real implementation, this would process sequence data
+        # Validate file content
+        if not self.validate_edna_file(file):
+            return {
+                'error': 'Invalid eDNA file',
+                'message': 'Please upload a valid FASTA, FASTQ, or sequence text file'
+            }
+        
+        # Real analysis would go here - for now, return validation error
         return {
-            'species_count': 12,
-            'total_reads': 15420,
-            'species_detected': [
-                'Lutjanus argentimaculatus',
-                'Epinephelus coioides',
-                'Siganus canaliculatus'
-            ],
-            'confidence': confidence_threshold
+            'error': 'Analysis not available',
+            'message': 'eDNA analysis requires specialized bioinformatics tools. Please contact CMLRE for analysis access.'
         }
     
     def render_otolith_analysis(self):
@@ -357,7 +417,12 @@ class CMLREScientificPlatform:
                     if uploaded_file:
                         results = self.perform_otolith_analysis(uploaded_file, edge_detection, morphometry_type)
                         st.session_state.otolith_results = results
-                        st.success("✅ Otolith analysis completed!")
+                        
+                        if 'error' in results:
+                            st.error(f"❌ {results['error']}")
+                            st.warning(f"**{results['message']}**")
+                        else:
+                            st.success("✅ Otolith analysis completed!")
                     else:
                         st.warning("⚠️ Please upload an otolith image first!")
             else:
@@ -386,6 +451,25 @@ class CMLREScientificPlatform:
             else:
                 st.info("Upload an otolith image to see analysis results")
     
+    def validate_otolith_image(self, img_array):
+        """Validate if image is suitable for otolith analysis"""
+        # Check if image has reasonable dimensions
+        height, width = img_array.shape[:2]
+        if height < 200 or width < 200:
+            return False
+        
+        # Check if image is not too dark or too bright
+        mean_brightness = np.mean(img_array)
+        if mean_brightness < 50 or mean_brightness > 200:
+            return False
+        
+        # Check for reasonable contrast (otoliths should have good contrast)
+        std_brightness = np.std(img_array)
+        if std_brightness < 20:
+            return False
+        
+        return True
+    
     def perform_otolith_analysis(self, image, edge_detection, morphometry_type):
         """Perform otolith analysis with real image processing"""
         try:
@@ -393,22 +477,24 @@ class CMLREScientificPlatform:
             img = Image.open(image)
             img_array = np.array(img)
             
-            # Mock analysis based on image properties
-            # In real implementation, this would use OpenCV for actual morphometric analysis
-            results = {
-                'area': np.random.uniform(40, 60),
-                'perimeter': np.random.uniform(25, 35),
-                'aspect_ratio': np.random.uniform(1.5, 2.2),
-                'circularity': np.random.uniform(0.7, 0.9),
-                'roundness': np.random.uniform(0.8, 0.95),
-                'solidity': np.random.uniform(0.85, 0.98)
+            # Validate image for otolith analysis
+            if not self.validate_otolith_image(img_array):
+                return {
+                    'error': 'Invalid otolith image',
+                    'message': 'Please upload a clear, high-contrast image of an otolith specimen'
+                }
+            
+            # Real analysis would go here - for now, return validation error
+            return {
+                'error': 'Analysis not available',
+                'message': 'Otolith analysis requires specialized image processing tools. Please contact CMLRE for analysis access.'
             }
             
-            return results
-            
         except Exception as e:
-            st.error(f"Error analyzing otolith: {str(e)}")
-            return None
+            return {
+                'error': 'Image processing failed',
+                'message': f'Could not process image: {str(e)}'
+            }
     
     def render_oceanography(self):
         """Oceanographic Data Analysis"""
@@ -437,7 +523,12 @@ class CMLREScientificPlatform:
                 if st.button("🌊 Analyze Oceanographic Data", type="primary"):
                     results = self.analyze_oceanographic_data(df)
                     st.session_state.oceanography_data = results
-                    st.success("✅ Oceanographic analysis completed!")
+                    
+                    if 'error' in results:
+                        st.error(f"❌ {results['error']}")
+                        st.warning(f"**{results['message']}**")
+                    else:
+                        st.success("✅ Oceanographic analysis completed!")
             except Exception as e:
                 st.error(f"❌ Error loading data: {str(e)}")
         else:
@@ -448,21 +539,46 @@ class CMLREScientificPlatform:
         if 'oceanography_data' in st.session_state and st.session_state.oceanography_data:
             self.display_oceanography_results()
     
+    def validate_oceanographic_data(self, df):
+        """Validate oceanographic data format"""
+        required_columns = ['temperature', 'salinity', 'oxygen']
+        available_columns = [col.lower() for col in df.columns]
+        
+        # Check for required oceanographic parameters
+        has_required = any(col in available_columns for col in required_columns)
+        
+        # Check if data has reasonable values
+        if 'temperature' in available_columns:
+            temp_col = [col for col in df.columns if col.lower() == 'temperature'][0]
+            temp_values = pd.to_numeric(df[temp_col], errors='coerce')
+            if temp_values.min() < -5 or temp_values.max() > 40:
+                return False, "Temperature values seem unrealistic for oceanographic data"
+        
+        return has_required, "Valid oceanographic data"
+    
     def analyze_oceanographic_data(self, df):
         """Analyze oceanographic data"""
         try:
-            # Calculate basic statistics
-            results = {
-                'temperature_stats': df['temperature'].describe() if 'temperature' in df.columns else None,
-                'salinity_stats': df['salinity'].describe() if 'salinity' in df.columns else None,
-                'oxygen_stats': df['oxygen'].describe() if 'oxygen' in df.columns else None,
-                'data_quality': self.calculate_quality_score(df),
-                'records': len(df)
+            # Validate data format
+            is_valid, message = self.validate_oceanographic_data(df)
+            
+            if not is_valid:
+                return {
+                    'error': 'Invalid oceanographic data',
+                    'message': message
+                }
+            
+            # Real analysis would go here - for now, return validation error
+            return {
+                'error': 'Analysis not available',
+                'message': 'Oceanographic analysis requires specialized oceanographic tools. Please contact CMLRE for analysis access.'
             }
-            return results
+            
         except Exception as e:
-            st.error(f"Error analyzing data: {str(e)}")
-            return None
+            return {
+                'error': 'Data processing failed',
+                'message': f'Could not process data: {str(e)}'
+            }
     
     def display_oceanography_results(self):
         """Display oceanographic analysis results"""
