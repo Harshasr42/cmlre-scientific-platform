@@ -859,6 +859,16 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
         if mean_brightness < 30 or mean_brightness > 220:
             return False
         
+        # Enhanced validation - check for scientific specimen characteristics
+        # Look for typical marine specimen features
+        if img_array.shape[2] < 3:  # Need RGB for proper analysis
+            return False
+            
+        # Check for reasonable aspect ratio (not too stretched)
+        aspect_ratio = width / height
+        if aspect_ratio < 0.3 or aspect_ratio > 3.0:
+            return False
+        
         return True
     
     def validate_edna_file(self, file):
@@ -876,13 +886,21 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                 return any(char in content.upper() for char in ['A', 'T', 'C', 'G'])
             else:
                 return False
-        except:
+        except Exception as e:
+            # Safe error handling - don't crash the app
+            st.warning(f"⚠️ File validation error: {str(e)}")
             return False
     
     def perform_edna_analysis(self, file, sample_type, database, min_reads, confidence_threshold):
         """Perform eDNA analysis"""
         # Validate file content
         if not self.validate_edna_file(file):
+            st.error("❌ **Invalid File Format**")
+            st.write("**Please upload a valid scientific file:**")
+            st.write("- **FASTA files** (.fasta, .fa) with DNA sequences")
+            st.write("- **FASTQ files** (.fastq, .fq) with sequencing data")
+            st.write("- **Text files** (.txt) with DNA sequences")
+            st.write("**Current file:** " + file.name)
             return {
                 'error': 'Invalid eDNA file',
                 'message': 'Please upload a valid FASTA, FASTQ, or sequence text file'
@@ -1211,6 +1229,12 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
             
             # Validate image for otolith analysis
             if not self.validate_otolith_image(img_array):
+                st.error("❌ **Invalid Otolith Image**")
+                st.write("**Please upload a valid scientific otolith specimen:**")
+                st.write("- **Clear, high-resolution image** (min 200x200 pixels)")
+                st.write("- **Good contrast** between otolith and background")
+                st.write("- **Scientific specimen** (not random photos)")
+                st.write("**Current file:** " + (image.name if hasattr(image, 'name') else 'Unknown'))
                 return {
                     'error': 'Invalid otolith image',
                     'message': 'Please upload a clear, high-contrast image of an otolith specimen'
@@ -1399,6 +1423,12 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
             is_valid, message = self.validate_oceanographic_data(df)
             
             if not is_valid:
+                st.error("❌ **Invalid Oceanographic Data**")
+                st.write("**Please upload a valid CSV file with:**")
+                st.write("- **Required columns:** temperature, salinity, oxygen")
+                st.write("- **Numeric data** in appropriate ranges")
+                st.write("- **Scientific format** (not random data)")
+                st.write(f"**Error:** {message}")
                 return {
                     'error': 'Invalid oceanographic data',
                     'message': message
