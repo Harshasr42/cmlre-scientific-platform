@@ -941,34 +941,52 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                     from io import BytesIO
                     from PIL import Image, ImageDraw
                     
-                    # Create a realistic otolith-like image (more scientific appearance)
-                    img = Image.new('RGB', (300, 200), color='white')
+                    # Create a realistic otolith image based on the scientific specimen
+                    img = Image.new('RGB', (400, 300), color='black')
                     draw = ImageDraw.Draw(img)
                     
-                    # Draw realistic otolith shape (asymmetrical, more natural)
-                    # Main body
-                    draw.ellipse([30, 50, 270, 150], fill='lightgray', outline='black', width=2)
+                    # Draw realistic otolith shape based on the scientific image
+                    # Main otolith body (lateral view - view 'a')
+                    # Crescent-shaped body
+                    draw.ellipse([50, 80, 350, 180], fill='lightgray', outline='white', width=2)
                     
-                    # Add realistic growth rings (concentric but not perfect circles)
-                    for i in range(5):
-                        radius = 25 + i * 12
-                        # Slightly irregular rings for realism
-                        offset_x = 2 if i % 2 == 0 else -2
-                        offset_y = 1 if i % 3 == 0 else -1
-                        draw.ellipse([150-radius+offset_x, 100-radius+offset_y, 150+radius+offset_x, 100+radius+offset_y], 
-                                   outline='darkgray', width=1)
+                    # Add sulcus (central groove) - view 'b' features
+                    # S-shaped sulcus characteristic of many fish species
+                    sulcus_points = [
+                        (120, 130), (140, 125), (160, 130), (180, 135), 
+                        (200, 130), (220, 125), (240, 130), (260, 135), (280, 130)
+                    ]
+                    for i in range(len(sulcus_points)-1):
+                        draw.line([sulcus_points[i], sulcus_points[i+1]], fill='darkgray', width=2)
                     
-                    # Add nucleus (center)
-                    draw.ellipse([145, 95, 155, 105], fill='darkgray', outline='black', width=1)
+                    # Add growth rings (concentric but irregular)
+                    for i in range(6):
+                        radius = 20 + i * 15
+                        # Irregular growth rings for realism
+                        offset_x = 3 if i % 2 == 0 else -3
+                        offset_y = 2 if i % 3 == 0 else -2
+                        draw.ellipse([200-radius+offset_x, 130-radius+offset_y, 200+radius+offset_x, 130+radius+offset_y], 
+                                   outline='gray', width=1)
                     
-                    # Add some texture lines
-                    for i in range(3):
-                        y_pos = 80 + i * 15
-                        draw.line([(50, y_pos), (250, y_pos)], fill='gray', width=1)
+                    # Add serrated edges (like in view 'b')
+                    for i in range(8):
+                        x = 60 + i * 35
+                        y1, y2 = 75, 85
+                        draw.line([(x, y1), (x+5, y2), (x+10, y1)], fill='white', width=1)
+                        draw.line([(x, 195), (x+5, 185), (x+10, 195)], fill='white', width=1)
                     
-                    # Add scale bar (scientific touch)
-                    draw.line([(20, 180), (70, 180)], fill='black', width=2)
-                    draw.text((45, 185), "1mm", fill='black')
+                    # Add anatomical orientation markers
+                    draw.text((20, 50), "A", fill='white')  # Anterior
+                    draw.text((20, 200), "I", fill='white')  # Inferior
+                    draw.text((350, 50), "D", fill='white')  # Dorsal
+                    
+                    # Add scale bar
+                    draw.line([(20, 250), (70, 250)], fill='white', width=2)
+                    draw.text((40, 255), "1mm", fill='white')
+                    
+                    # Add scientific labels
+                    draw.text((20, 20), "Otolith Specimen - Lateral View", fill='white')
+                    draw.text((20, 35), "Sulcus visible, Growth rings present", fill='lightgray')
                     
                     # Convert to base64
                     buffer = BytesIO()
@@ -984,18 +1002,28 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                 
                 with col_demo2:
                     if st.button("🔬 Run Demo Analysis", type="primary", key="demo_otolith_analysis"):
-                        # Run demo analysis
+                        # Run demo analysis based on real otolith features
                         demo_otolith_result = {
-                            'area': 45.2,
-                            'perimeter': 28.7,
-                            'aspect_ratio': 1.8,
-                            'circularity': 0.75,
-                            'roundness': 0.82,
-                            'solidity': 0.91,
-                            'age_estimate': '2-3 years',
-                            'growth_rings': 8,
-                            'species_likelihood': 'Lutjanus argentimaculatus (85%)',
-                            'confidence': 'High'
+                            'area': 52.8,
+                            'perimeter': 34.2,
+                            'aspect_ratio': 2.1,
+                            'circularity': 0.68,
+                            'roundness': 0.74,
+                            'solidity': 0.89,
+                            'sulcus_length': 8.3,
+                            'sulcus_width': 1.2,
+                            'sulcus_curvature': 'S-shaped',
+                            'age_estimate': '3-4 years',
+                            'growth_rings': 12,
+                            'species_likelihood': 'Lutjanus argentimaculatus (92%)',
+                            'confidence': 'High',
+                            'morphological_features': {
+                                'sulcus_present': True,
+                                'growth_rings_visible': True,
+                                'serrated_edges': True,
+                                'asymmetrical_shape': True
+                            },
+                            'scientific_notes': 'Sulcus morphology and growth ring pattern consistent with Lutjanidae family'
                         }
                         
                         st.session_state.otolith_results = demo_otolith_result
@@ -1004,22 +1032,50 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                         # Show detailed results
                         st.write("**Morphometric Analysis Results:**")
                         
-                        # Show numeric metrics
+                        # Show basic morphometric metrics
                         col_metrics1, col_metrics2 = st.columns(2)
                         with col_metrics1:
-                            st.metric("Area", f"{demo_otolith_result['area']:.3f}")
-                            st.metric("Perimeter", f"{demo_otolith_result['perimeter']:.3f}")
-                            st.metric("Aspect Ratio", f"{demo_otolith_result['aspect_ratio']:.3f}")
+                            st.metric("Area (mm²)", f"{demo_otolith_result['area']:.1f}")
+                            st.metric("Perimeter (mm)", f"{demo_otolith_result['perimeter']:.1f}")
+                            st.metric("Aspect Ratio", f"{demo_otolith_result['aspect_ratio']:.2f}")
                         with col_metrics2:
-                            st.metric("Circularity", f"{demo_otolith_result['circularity']:.3f}")
-                            st.metric("Roundness", f"{demo_otolith_result['roundness']:.3f}")
-                            st.metric("Solidity", f"{demo_otolith_result['solidity']:.3f}")
+                            st.metric("Circularity", f"{demo_otolith_result['circularity']:.2f}")
+                            st.metric("Roundness", f"{demo_otolith_result['roundness']:.2f}")
+                            st.metric("Solidity", f"{demo_otolith_result['solidity']:.2f}")
                         
-                        st.write("**Additional Information:**")
-                        st.write(f"**Age Estimate:** {demo_otolith_result['age_estimate']}")
-                        st.write(f"**Growth Rings:** {demo_otolith_result['growth_rings']}")
-                        st.write(f"**Species Likelihood:** {demo_otolith_result['species_likelihood']}")
-                        st.write(f"**Confidence:** {demo_otolith_result['confidence']}")
+                        # Show sulcus analysis
+                        st.write("**Sulcus Analysis:**")
+                        col_sulcus1, col_sulcus2 = st.columns(2)
+                        with col_sulcus1:
+                            st.metric("Sulcus Length (mm)", f"{demo_otolith_result['sulcus_length']:.1f}")
+                            st.metric("Sulcus Width (mm)", f"{demo_otolith_result['sulcus_width']:.1f}")
+                        with col_sulcus2:
+                            st.metric("Sulcus Curvature", demo_otolith_result['sulcus_curvature'])
+                        
+                        # Show morphological features
+                        st.write("**Morphological Features:**")
+                        features = demo_otolith_result['morphological_features']
+                        col_feat1, col_feat2 = st.columns(2)
+                        with col_feat1:
+                            st.write(f"✅ **Sulcus Present:** {features['sulcus_present']}")
+                            st.write(f"✅ **Growth Rings Visible:** {features['growth_rings_visible']}")
+                        with col_feat2:
+                            st.write(f"✅ **Serrated Edges:** {features['serrated_edges']}")
+                            st.write(f"✅ **Asymmetrical Shape:** {features['asymmetrical_shape']}")
+                        
+                        # Show age and species information
+                        st.write("**Age and Species Information:**")
+                        col_info1, col_info2 = st.columns(2)
+                        with col_info1:
+                            st.metric("Age Estimate", demo_otolith_result['age_estimate'])
+                            st.metric("Growth Rings Count", demo_otolith_result['growth_rings'])
+                        with col_info2:
+                            st.metric("Species Likelihood", demo_otolith_result['species_likelihood'])
+                            st.metric("Analysis Confidence", demo_otolith_result['confidence'])
+                        
+                        # Show scientific notes
+                        st.write("**Scientific Notes:**")
+                        st.info(f"**{demo_otolith_result['scientific_notes']}**")
             
             # Regular otolith analysis
             uploaded_file = st.file_uploader("Upload otolith image", type=['png', 'jpg', 'jpeg'], key="otolith_image")
