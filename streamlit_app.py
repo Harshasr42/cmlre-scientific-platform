@@ -957,7 +957,27 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                             st.write("**Upload your real otolith image to:** `sample_data/otolith_specimens/real_otolith_specimen.png`")
                             break
                     
-                    if not real_otolith_found:
+                    # Always show download button for the real image (if available) or fallback
+                    if real_otolith_found:
+                        # Use the real otolith image for download
+                        real_image_path = None
+                        for path in real_otolith_paths:
+                            if os.path.exists(path):
+                                real_image_path = path
+                                break
+                        
+                        if real_image_path:
+                            with open(real_image_path, "rb") as f:
+                                real_image_data = f.read()
+                            
+                            st.download_button(
+                                label="📥 Download Real Otolith Image",
+                                data=real_image_data,
+                                file_name="real_otolith_specimen.png",
+                                mime="image/png"
+                            )
+                            st.success("🎯 **Real otolith specimen available for download!**")
+                    else:
                         # Create a realistic otolith image based on the scientific specimen
                         img = Image.new('RGB', (400, 300), color='black')
                         draw = ImageDraw.Draw(img)
