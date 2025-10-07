@@ -367,15 +367,41 @@ Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count,44.3,1200"""
                 from io import BytesIO
                 from PIL import Image, ImageDraw
                 
-                # Create a simple fish specimen image
-                img = Image.new('RGB', (300, 200), color='lightblue')
+                # Create a realistic fish specimen image
+                img = Image.new('RGB', (400, 250), color='lightblue')
                 draw = ImageDraw.Draw(img)
                 
-                # Draw fish shape
-                draw.ellipse([50, 80, 250, 120], fill='silver', outline='black', width=2)
-                draw.polygon([(250, 100), (280, 90), (280, 110)], fill='silver', outline='black')
-                draw.ellipse([80, 90, 100, 110], fill='black')  # eye
-                draw.arc([120, 95, 180, 105], 0, 180, fill='black', width=2)  # gill
+                # Draw realistic fish body (elongated, more natural shape)
+                # Main body
+                draw.ellipse([60, 100, 340, 150], fill='silver', outline='black', width=2)
+                
+                # Head (more pointed)
+                draw.ellipse([40, 110, 80, 140], fill='silver', outline='black', width=2)
+                
+                # Tail fin
+                draw.polygon([(340, 125), (380, 100), (380, 150)], fill='silver', outline='black', width=2)
+                
+                # Dorsal fin
+                draw.polygon([(200, 90), (220, 80), (240, 90)], fill='silver', outline='black', width=2)
+                
+                # Pectoral fin
+                draw.ellipse([120, 130, 140, 150], fill='silver', outline='black', width=2)
+                
+                # Eye
+                draw.ellipse([70, 115, 85, 130], fill='white', outline='black', width=2)
+                draw.ellipse([75, 120, 80, 125], fill='black')  # pupil
+                
+                # Gill cover
+                draw.arc([90, 120, 130, 140], 0, 180, fill='black', width=3)
+                
+                # Scale pattern
+                for i in range(8):
+                    x = 100 + i * 25
+                    draw.arc([x, 110, x+20, 140], 0, 180, fill='darkgray', width=1)
+                
+                # Add scientific label
+                draw.text((20, 20), "Lutjanus argentimaculatus", fill='black')
+                draw.text((20, 40), "Mangrove Red Snapper", fill='darkgray')
                 
                 # Convert to base64
                 buffer = BytesIO()
@@ -730,17 +756,34 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                     from io import BytesIO
                     from PIL import Image, ImageDraw
                     
-                    # Create a simple otolith-like image
-                    img = Image.new('RGB', (200, 150), color='white')
+                    # Create a realistic otolith-like image (more scientific appearance)
+                    img = Image.new('RGB', (300, 200), color='white')
                     draw = ImageDraw.Draw(img)
                     
-                    # Draw otolith shape
-                    draw.ellipse([20, 20, 180, 130], outline='black', width=2)
-                    draw.ellipse([40, 40, 160, 110], outline='gray', width=1)
-                    # Add growth rings
+                    # Draw realistic otolith shape (asymmetrical, more natural)
+                    # Main body
+                    draw.ellipse([30, 50, 270, 150], fill='lightgray', outline='black', width=2)
+                    
+                    # Add realistic growth rings (concentric but not perfect circles)
+                    for i in range(5):
+                        radius = 25 + i * 12
+                        # Slightly irregular rings for realism
+                        offset_x = 2 if i % 2 == 0 else -2
+                        offset_y = 1 if i % 3 == 0 else -1
+                        draw.ellipse([150-radius+offset_x, 100-radius+offset_y, 150+radius+offset_x, 100+radius+offset_y], 
+                                   outline='darkgray', width=1)
+                    
+                    # Add nucleus (center)
+                    draw.ellipse([145, 95, 155, 105], fill='darkgray', outline='black', width=1)
+                    
+                    # Add some texture lines
                     for i in range(3):
-                        radius = 30 + i * 15
-                        draw.ellipse([100-radius, 75-radius, 100+radius, 75+radius], outline='darkgray', width=1)
+                        y_pos = 80 + i * 15
+                        draw.line([(50, y_pos), (250, y_pos)], fill='gray', width=1)
+                    
+                    # Add scale bar (scientific touch)
+                    draw.line([(20, 180), (70, 180)], fill='black', width=2)
+                    draw.text((45, 185), "1mm", fill='black')
                     
                     # Convert to base64
                     buffer = BytesIO()
