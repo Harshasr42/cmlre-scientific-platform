@@ -489,14 +489,141 @@ Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count,44.3,1200"""
                     st.warning("⚠️ Please upload a specimen image for classification")
             
             elif classification_method == "Morphological traits":
-                st.text_area("Enter morphological characteristics", placeholder="Describe key features...", key="morph_traits")
+                # Demo section for morphological traits
+                with st.expander("🎯 Demo Morphological Analysis", expanded=True):
+                    st.write("**Try the demo with sample morphological data:**")
+                    
+                    col_demo1, col_demo2 = st.columns(2)
+                    with col_demo1:
+                        if st.button("📝 Load Demo Morphological Data", type="primary", key="demo_morpho_data"):
+                            st.session_state.demo_morpho_text = """Elongated fusiform body, silver scales with dark vertical bars, 
+                            prominent dorsal fin with 8-9 spines, forked caudal fin, large eyes, 
+                            pointed snout, found in coastal waters and coral reefs."""
+                            st.rerun()
+                    
+                    with col_demo2:
+                        if st.button("🔬 Run Demo Morphological Analysis", type="primary", key="demo_morpho_analysis"):
+                            demo_morpho_result = {
+                                'species': 'Scomberomorus commerson',
+                                'confidence': 89,
+                                'common_name': 'Narrow-barred Spanish Mackerel',
+                                'family': 'Scombridae',
+                                'genus': 'Scomberomorus',
+                                'habitat': 'Coastal waters and coral reefs',
+                                'distribution': 'Indo-Pacific region',
+                                'conservation_status': 'Least Concern',
+                                'morphological_analysis': 'Body shape and fin characteristics match Scomberomorus genus'
+                            }
+                            
+                            st.session_state.taxonomy_results = demo_morpho_result
+                            st.success("✅ Demo morphological analysis completed!")
+                            
+                            # Show results
+                            st.write("**Morphological Analysis Results:**")
+                            st.info(f"**Species:** {demo_morpho_result['species']}")
+                            st.metric("Confidence", f"{demo_morpho_result['confidence']}%")
+                            
+                            col_info1, col_info2 = st.columns(2)
+                            with col_info1:
+                                st.write(f"**Common Name:** {demo_morpho_result['common_name']}")
+                                st.write(f"**Family:** {demo_morpho_result['family']}")
+                                st.write(f"**Genus:** {demo_morpho_result['genus']}")
+                            with col_info2:
+                                st.write(f"**Habitat:** {demo_morpho_result['habitat']}")
+                                st.write(f"**Distribution:** {demo_morpho_result['distribution']}")
+                                st.write(f"**Conservation Status:** {demo_morpho_result['conservation_status']}")
+                            
+                            st.write(f"**Morphological Analysis:** {demo_morpho_result['morphological_analysis']}")
+                
+                # Regular morphological traits input
+                morpho_text = st.text_area(
+                    "Enter morphological characteristics", 
+                    placeholder="Describe key features...", 
+                    key="morph_traits",
+                    value=st.session_state.get('demo_morpho_text', '')
+                )
                 if st.button("🔬 Classify Species", type="primary"):
-                    st.warning("⚠️ Please provide detailed morphological characteristics for classification")
+                    if morpho_text:
+                        result = self.perform_species_classification(None, morpho_text)
+                        st.session_state.taxonomy_results = result
+                        
+                        if 'error' in result:
+                            st.error(f"❌ {result['error']}")
+                            st.warning(f"**{result['message']}**")
+                        else:
+                            st.success("✅ Species classified successfully!")
+                            st.info(f"**Classification Result:** {result['species']} ({result['confidence']}% confidence)")
+                    else:
+                        st.warning("⚠️ Please provide detailed morphological characteristics for classification")
             
             else:  # Molecular markers
-                st.text_area("Enter molecular sequence data", placeholder="DNA sequence...", key="dna_sequence")
+                # Demo section for molecular markers
+                with st.expander("🎯 Demo Molecular Analysis", expanded=True):
+                    st.write("**Try the demo with sample DNA sequence data:**")
+                    
+                    col_demo1, col_demo2 = st.columns(2)
+                    with col_demo1:
+                        if st.button("📝 Load Demo DNA Sequence", type="primary", key="demo_dna_data"):
+                            st.session_state.demo_dna_text = """ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG
+TACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACG
+CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
+                            st.rerun()
+                    
+                    with col_demo2:
+                        if st.button("🔬 Run Demo Molecular Analysis", type="primary", key="demo_dna_analysis"):
+                            demo_dna_result = {
+                                'species': 'Lutjanus argentimaculatus',
+                                'confidence': 94,
+                                'common_name': 'Mangrove Red Snapper',
+                                'family': 'Lutjanidae',
+                                'genus': 'Lutjanus',
+                                'habitat': 'Mangrove forests and coral reefs',
+                                'distribution': 'Indo-Pacific region',
+                                'conservation_status': 'Least Concern',
+                                'molecular_analysis': 'COI sequence matches Lutjanus argentimaculatus with 94% identity'
+                            }
+                            
+                            st.session_state.taxonomy_results = demo_dna_result
+                            st.success("✅ Demo molecular analysis completed!")
+                            
+                            # Show results
+                            st.write("**Molecular Analysis Results:**")
+                            st.info(f"**Species:** {demo_dna_result['species']}")
+                            st.metric("Confidence", f"{demo_dna_result['confidence']}%")
+                            
+                            col_info1, col_info2 = st.columns(2)
+                            with col_info1:
+                                st.write(f"**Common Name:** {demo_dna_result['common_name']}")
+                                st.write(f"**Family:** {demo_dna_result['family']}")
+                                st.write(f"**Genus:** {demo_dna_result['genus']}")
+                            with col_info2:
+                                st.write(f"**Habitat:** {demo_dna_result['habitat']}")
+                                st.write(f"**Distribution:** {demo_dna_result['distribution']}")
+                                st.write(f"**Conservation Status:** {demo_dna_result['conservation_status']}")
+                            
+                            st.write(f"**Molecular Analysis:** {demo_dna_result['molecular_analysis']}")
+                
+                # Regular molecular markers input
+                dna_text = st.text_area(
+                    "Enter molecular sequence data", 
+                    placeholder="DNA sequence...", 
+                    key="dna_sequence",
+                    value=st.session_state.get('demo_dna_text', '')
+                )
                 if st.button("🔬 Classify Species", type="primary"):
-                    st.warning("⚠️ Please provide valid DNA sequence data for classification")
+                    if dna_text:
+                        result = self.perform_species_classification(None, None, dna_text)
+                        st.session_state.taxonomy_results = result
+                        
+                        if 'error' in result:
+                            st.error(f"❌ {result['error']}")
+                            st.warning(f"**{result['message']}**")
+                        else:
+                            st.success("✅ Species classified successfully!")
+                            st.info(f"**Classification Result:** {result['species']} ({result['confidence']}% confidence)")
+                    else:
+                        st.warning("⚠️ Please provide valid DNA sequence data for classification")
         
         with col2:
             st.subheader("🧬 eDNA Analysis")
@@ -618,44 +745,102 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                 else:
                     st.warning("⚠️ Please upload eDNA sequence data first!")
     
-    def perform_species_classification(self, image):
-        """Perform species classification on uploaded image"""
+    def perform_species_classification(self, image=None, morphological_text=None, dna_sequence=None):
+        """Perform species classification on uploaded image, morphological traits, or DNA sequence"""
         try:
-            # Validate image content
-            img = Image.open(image)
-            img_array = np.array(img)
-            
-            # Check if image is valid for marine species analysis
-            if not self.validate_marine_specimen_image(img_array):
+            # Image-based classification
+            if image is not None:
+                # Validate image content
+                img = Image.open(image)
+                img_array = np.array(img)
+                
+                # Check if image is valid for marine species analysis
+                if not self.validate_marine_specimen_image(img_array):
+                    return {
+                        'error': 'Invalid specimen image',
+                        'message': 'Please upload a clear image of a marine fish specimen'
+                    }
+                
+                # Check if this is a sample file (for demonstration)
+                if hasattr(image, 'name') and 'sample' in image.name.lower():
+                    # Provide realistic analysis for sample files
+                    return {
+                        'species': 'Lutjanus argentimaculatus',
+                        'common_name': 'Mangrove Red Snapper',
+                        'confidence': 87.5,
+                        'family': 'Lutjanidae',
+                        'genus': 'Lutjanus',
+                        'habitat': 'Mangrove and coral reef areas',
+                        'distribution': 'Indo-Pacific region',
+                        'conservation_status': 'Least Concern'
+                    }
+                
+                # Real analysis would go here - for now, return validation error
                 return {
-                    'error': 'Invalid specimen image',
-                    'message': 'Please upload a clear image of a marine fish specimen'
+                    'error': 'Analysis not available',
+                    'message': 'Species classification requires trained ML models. Please contact CMLRE for model access.'
                 }
             
-            # Check if this is a sample file (for demonstration)
-            if hasattr(image, 'name') and 'sample' in image.name.lower():
-                # Provide realistic analysis for sample files
+            # Morphological traits classification
+            elif morphological_text is not None:
+                # Check if it's the demo morphological text
+                demo_morpho_text = """Elongated fusiform body, silver scales with dark vertical bars, 
+                            prominent dorsal fin with 8-9 spines, forked caudal fin, large eyes, 
+                            pointed snout, found in coastal waters and coral reefs."""
+                
+                if morphological_text.strip() == demo_morpho_text.strip():
+                    return {
+                        'species': 'Scomberomorus commerson',
+                        'confidence': 89,
+                        'common_name': 'Narrow-barred Spanish Mackerel',
+                        'family': 'Scombridae',
+                        'genus': 'Scomberomorus',
+                        'habitat': 'Coastal waters and coral reefs',
+                        'distribution': 'Indo-Pacific region',
+                        'conservation_status': 'Least Concern',
+                        'morphological_analysis': 'Body shape and fin characteristics match Scomberomorus genus'
+                    }
+                
                 return {
-                    'species': 'Lutjanus argentimaculatus',
-                    'common_name': 'Mangrove Red Snapper',
-                    'confidence': 87.5,
-                    'family': 'Lutjanidae',
-                    'genus': 'Lutjanus',
-                    'habitat': 'Mangrove and coral reef areas',
-                    'distribution': 'Indo-Pacific region',
-                    'conservation_status': 'Least Concern'
+                    'error': 'Analysis not available',
+                    'message': 'Real morphological classification requires trained ML models'
                 }
             
-            # Real analysis would go here - for now, return validation error
+            # DNA sequence classification
+            elif dna_sequence is not None:
+                # Check if it's the demo DNA sequence
+                demo_dna_text = """ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG
+TACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACG
+CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
+                
+                if dna_sequence.strip() == demo_dna_text.strip():
+                    return {
+                        'species': 'Lutjanus argentimaculatus',
+                        'confidence': 94,
+                        'common_name': 'Mangrove Red Snapper',
+                        'family': 'Lutjanidae',
+                        'genus': 'Lutjanus',
+                        'habitat': 'Mangrove forests and coral reefs',
+                        'distribution': 'Indo-Pacific region',
+                        'conservation_status': 'Least Concern',
+                        'molecular_analysis': 'COI sequence matches Lutjanus argentimaculatus with 94% identity'
+                    }
+                
+                return {
+                    'error': 'Analysis not available',
+                    'message': 'Real molecular classification requires trained ML models'
+                }
+            
             return {
-                'error': 'Analysis not available',
-                'message': 'Species classification requires trained ML models. Please contact CMLRE for model access.'
+                'error': 'No input provided',
+                'message': 'Please provide an image, morphological traits, or DNA sequence'
             }
             
         except Exception as e:
             return {
-                'error': 'Image processing failed',
-                'message': f'Could not process image: {str(e)}'
+                'error': 'Classification failed',
+                'message': f'Error processing input: {str(e)}'
             }
     
     def validate_marine_specimen_image(self, img_array):
