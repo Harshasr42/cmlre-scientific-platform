@@ -1671,57 +1671,112 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
         with col2:
             st.subheader("👥 Collaboration Tools")
             
-            # Research team with interactive features
-            st.write("**Research Team:**")
-            team_members = [
-                {"name": "Dr. Rajesh Kumar", "role": "Principal Investigator", "specialty": "Marine Biology", "email": "rajesh.kumar@cmlre.gov.in"},
-                {"name": "Dr. Priya Sharma", "role": "Data Scientist", "specialty": "Oceanography", "email": "priya.sharma@cmlre.gov.in"},
-                {"name": "Dr. Amit Patel", "role": "Taxonomist", "specialty": "Marine Taxonomy", "email": "amit.patel@cmlre.gov.in"},
-                {"name": "Dr. Sunita Singh", "role": "Molecular Biologist", "specialty": "eDNA Research", "email": "sunita.singh@cmlre.gov.in"}
-            ]
-            
-            for i, member in enumerate(team_members):
-                with st.expander(f"👤 {member['name']} - {member['role']}", expanded=False):
-                    st.write(f"**Specialty:** {member['specialty']}")
-                    st.write(f"**Email:** {member['email']}")
-                    st.write(f"**Status:** Available for collaboration")
-                    if st.button(f"📧 Contact {member['name'].split()[-1]}", key=f"contact_{i}"):
-                        st.info(f"📧 Contacting {member['name']} at {member['email']}")
-            
-            # Enhanced data sharing
-            st.write("**Data Sharing:**")
-            
-            if st.button("🔗 Share datasets with research collaborators"):
-                if st.session_state.datasets:
-                    st.success(f"📤 Sharing {len(st.session_state.datasets)} datasets with research team...")
-                    st.info("**Shared datasets:**")
-                    for i, dataset in enumerate(st.session_state.datasets):
-                        st.write(f"• {dataset.get('name', f'Dataset {i+1}')} - {dataset.get('type', 'Unknown type')}")
-                    st.success("✅ All team members have been notified!")
+            # Project-specific team management
+            if st.session_state.current_project:
+                st.write("**Project Team Management:**")
+                
+                # Add team member form
+                with st.expander("➕ Add Team Member", expanded=False):
+                    member_name = st.text_input("Name", placeholder="Dr. John Smith", key="member_name")
+                    member_role = st.selectbox("Role", ["Principal Investigator", "Data Scientist", "Taxonomist", "Molecular Biologist", "Oceanographer", "Research Assistant", "Other"], key="member_role")
+                    member_specialty = st.text_input("Specialty", placeholder="Marine Biology", key="member_specialty")
+                    member_email = st.text_input("Email", placeholder="john.smith@institution.edu", key="member_email")
+                    
+                    if st.button("➕ Add to Project Team", key="add_member"):
+                        if member_name and member_role and member_email:
+                            if 'team_members' not in st.session_state.current_project:
+                                st.session_state.current_project['team_members'] = []
+                            
+                            new_member = {
+                                'name': member_name,
+                                'role': member_role,
+                                'specialty': member_specialty,
+                                'email': member_email,
+                                'added': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            }
+                            st.session_state.current_project['team_members'].append(new_member)
+                            st.success(f"✅ {member_name} added to project team!")
+                            st.rerun()
+                        else:
+                            st.warning("⚠️ Please fill in name, role, and email")
+                
+                # Display project team members
+                if 'team_members' in st.session_state.current_project and st.session_state.current_project['team_members']:
+                    st.write("**Project Team Members:**")
+                    for i, member in enumerate(st.session_state.current_project['team_members']):
+                        with st.expander(f"👤 {member['name']} - {member['role']}", expanded=False):
+                            st.write(f"**Specialty:** {member['specialty']}")
+                            st.write(f"**Email:** {member['email']}")
+                            st.write(f"**Added:** {member['added']}")
+                            st.write(f"**Status:** Active team member")
+                            
+                            col_contact, col_remove = st.columns(2)
+                            with col_contact:
+                                if st.button(f"📧 Contact", key=f"contact_{i}"):
+                                    st.info(f"📧 Contacting {member['name']} at {member['email']}")
+                            with col_remove:
+                                if st.button(f"🗑️ Remove", key=f"remove_{i}"):
+                                    st.session_state.current_project['team_members'].pop(i)
+                                    st.success(f"✅ {member['name']} removed from team")
+                                    st.rerun()
                 else:
-                    st.warning("No datasets available to share")
+                    st.info("No team members added yet. Add team members above.")
+            else:
+                st.info("Create a project first to manage team members.")
             
-            if st.button("📊 Export analysis results for publication"):
-                if st.session_state.analysis_results:
-                    st.success("📄 Generating publication-ready report...")
-                    st.info("**Export includes:**")
-                    st.write("• Executive summary")
-                    st.write("• Methodology and data sources")
-                    st.write("• Analysis results and visualizations")
-                    st.write("• Statistical significance tests")
-                    st.write("• References and citations")
-                    st.success("✅ Report exported successfully!")
-                else:
-                    st.warning("No analysis results available to export")
-            
-            if st.button("🔒 Secure data access controls"):
-                st.success("🔐 Managing data access permissions...")
-                st.info("**Access Controls:**")
-                st.write("• **Public:** Open access datasets")
-                st.write("• **Restricted:** Team members only")
-                st.write("• **Confidential:** Principal Investigator only")
-                st.write("• **Classified:** Encrypted access required")
-                st.success("✅ Access controls updated successfully!")
+            # Project-specific data sharing
+            if st.session_state.current_project:
+                st.write("**Project Data Sharing:**")
+                
+                if st.button("🔗 Share datasets with research collaborators"):
+                    if 'team_members' in st.session_state.current_project and st.session_state.current_project['team_members']:
+                        if st.session_state.datasets:
+                            st.success(f"📤 Sharing {len(st.session_state.datasets)} datasets with {len(st.session_state.current_project['team_members'])} team members...")
+                            st.info("**Shared datasets:**")
+                            for i, dataset in enumerate(st.session_state.datasets):
+                                st.write(f"• {dataset.get('name', f'Dataset {i+1}')} - {dataset.get('type', 'Unknown type')}")
+                            
+                            st.info("**Team members notified:**")
+                            for member in st.session_state.current_project['team_members']:
+                                st.write(f"• {member['name']} ({member['role']}) - {member['email']}")
+                            
+                            st.success("✅ All team members have been notified!")
+                        else:
+                            st.warning("No datasets available to share")
+                    else:
+                        st.warning("No team members added to this project yet")
+                
+                if st.button("📊 Export analysis results for publication"):
+                    if st.session_state.analysis_results:
+                        st.success("📄 Generating publication-ready report...")
+                        st.info("**Export includes:**")
+                        st.write("• Executive summary")
+                        st.write("• Methodology and data sources")
+                        st.write("• Analysis results and visualizations")
+                        st.write("• Statistical significance tests")
+                        st.write("• References and citations")
+                        st.write(f"• **Project:** {st.session_state.current_project['title']}")
+                        st.write(f"• **Team:** {len(st.session_state.current_project.get('team_members', []))} members")
+                        st.success("✅ Report exported successfully!")
+                    else:
+                        st.warning("No analysis results available to export")
+                
+                if st.button("🔒 Secure data access controls"):
+                    st.success("🔐 Managing data access permissions...")
+                    st.info("**Access Controls for this project:**")
+                    st.write("• **Public:** Open access datasets")
+                    st.write("• **Restricted:** Team members only")
+                    st.write("• **Confidential:** Principal Investigator only")
+                    st.write("• **Classified:** Encrypted access required")
+                    
+                    if 'team_members' in st.session_state.current_project and st.session_state.current_project['team_members']:
+                        st.write("**Current team members with access:**")
+                        for member in st.session_state.current_project['team_members']:
+                            st.write(f"• {member['name']} - {member['role']}")
+                    
+                    st.success("✅ Access controls updated successfully!")
+            else:
+                st.info("Create a project first to manage data sharing.")
     
     def render_demo_samples(self):
         """Demo and Sample Files Tab"""
