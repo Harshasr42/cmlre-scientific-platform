@@ -135,7 +135,7 @@ Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count,44.3,1200"""
                     )
                 
                 with col_demo2:
-                    if st.button("📊 Run Demo Integration", type="primary"):
+                    if st.button("📊 Run Demo Integration", type="primary", key="demo_integration_analysis"):
                         # Run demo integration
                         demo_integration_result = [
                             {
@@ -437,7 +437,7 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                     )
                 
                 with col_demo2:
-                    if st.button("🔬 Run Demo Analysis", type="primary"):
+                    if st.button("🔬 Run Demo Analysis", type="primary", key="demo_edna_analysis"):
                         # Run demo analysis
                         demo_result = {
                             'species_count': 3,
@@ -662,7 +662,7 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                     st.write("**Size:** 45.2 mm² area")
                 
                 with col_demo2:
-                    if st.button("🔬 Run Demo Analysis", type="primary"):
+                    if st.button("🔬 Run Demo Analysis", type="primary", key="demo_otolith_analysis"):
                         # Run demo analysis
                         demo_otolith_result = {
                             'area': 45.2,
@@ -833,7 +833,7 @@ GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
                 )
             
             with col_demo2:
-                if st.button("🌊 Run Demo Analysis", type="primary"):
+                if st.button("🌊 Run Demo Analysis", type="primary", key="demo_ocean_analysis"):
                     # Run demo analysis
                     demo_ocean_result = {
                         'temperature_stats': {
