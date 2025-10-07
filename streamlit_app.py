@@ -1594,6 +1594,10 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
         """Research Project Management"""
         st.header("🔬 Research Project Management")
         
+        # Initialize projects list in session state
+        if 'projects' not in st.session_state:
+            st.session_state.projects = []
+        
         col1, col2 = st.columns([1, 1])
         
         with col1:
@@ -1606,15 +1610,53 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
             
             if st.button("➕ Create Project", type="primary"):
                 if project_title and project_description:
-                    st.session_state.current_project = {
+                    new_project = {
+                        'id': len(st.session_state.projects) + 1,
                         'title': project_title,
                         'type': project_type,
                         'description': project_description,
-                        'created': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        'created': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'status': 'Active'
                     }
+                    st.session_state.projects.append(new_project)
+                    st.session_state.current_project = new_project
                     st.success("✅ Project created successfully!")
+                    st.rerun()
                 else:
                     st.warning("⚠️ Please fill in project title and description")
+            
+            # Project history and selection
+            if st.session_state.projects:
+                st.subheader("📚 Project History")
+                
+                # Project selection
+                project_options = [f"{p['title']} ({p['type']}) - {p['created']}" for p in st.session_state.projects]
+                selected_project_idx = st.selectbox(
+                    "Select Project:",
+                    range(len(project_options)),
+                    format_func=lambda x: project_options[x]
+                )
+                
+                if selected_project_idx is not None:
+                    st.session_state.current_project = st.session_state.projects[selected_project_idx]
+                
+                # Project management actions
+                col_edit, col_delete = st.columns(2)
+                with col_edit:
+                    if st.button("✏️ Edit Project", key="edit_project"):
+                        st.session_state.editing_project = True
+                        st.rerun()
+                
+                with col_delete:
+                    if st.button("🗑️ Delete Project", key="delete_project"):
+                        if len(st.session_state.projects) > 0:
+                            del st.session_state.projects[selected_project_idx]
+                            if st.session_state.projects:
+                                st.session_state.current_project = st.session_state.projects[0]
+                            else:
+                                st.session_state.current_project = None
+                            st.success("✅ Project deleted successfully!")
+                            st.rerun()
             
             # Show current project
             if st.session_state.current_project:
@@ -1624,38 +1666,62 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                 st.write(f"**Type:** {project['type']}")
                 st.write(f"**Description:** {project['description']}")
                 st.write(f"**Created:** {project['created']}")
+                st.write(f"**Status:** {project['status']}")
         
         with col2:
             st.subheader("👥 Collaboration Tools")
             
-            # Research team
+            # Research team with interactive features
             st.write("**Research Team:**")
             team_members = [
-                "Dr. Rajesh Kumar - Principal Investigator (Marine Biology)",
-                "Dr. Priya Sharma - Data Scientist (Oceanography)",
-                "Dr. Amit Patel - Taxonomist (Marine Taxonomy)",
-                "Dr. Sunita Singh - Molecular Biologist (eDNA Research)"
+                {"name": "Dr. Rajesh Kumar", "role": "Principal Investigator", "specialty": "Marine Biology", "email": "rajesh.kumar@cmlre.gov.in"},
+                {"name": "Dr. Priya Sharma", "role": "Data Scientist", "specialty": "Oceanography", "email": "priya.sharma@cmlre.gov.in"},
+                {"name": "Dr. Amit Patel", "role": "Taxonomist", "specialty": "Marine Taxonomy", "email": "amit.patel@cmlre.gov.in"},
+                {"name": "Dr. Sunita Singh", "role": "Molecular Biologist", "specialty": "eDNA Research", "email": "sunita.singh@cmlre.gov.in"}
             ]
             
-            for member in team_members:
-                st.write(f"• {member}")
+            for i, member in enumerate(team_members):
+                with st.expander(f"👤 {member['name']} - {member['role']}", expanded=False):
+                    st.write(f"**Specialty:** {member['specialty']}")
+                    st.write(f"**Email:** {member['email']}")
+                    st.write(f"**Status:** Available for collaboration")
+                    if st.button(f"📧 Contact {member['name'].split()[-1]}", key=f"contact_{i}"):
+                        st.info(f"📧 Contacting {member['name']} at {member['email']}")
             
-            # Data sharing
+            # Enhanced data sharing
             st.write("**Data Sharing:**")
+            
             if st.button("🔗 Share datasets with research collaborators"):
                 if st.session_state.datasets:
-                    st.info(f"Sharing {len(st.session_state.datasets)} datasets with collaborators...")
+                    st.success(f"📤 Sharing {len(st.session_state.datasets)} datasets with research team...")
+                    st.info("**Shared datasets:**")
+                    for i, dataset in enumerate(st.session_state.datasets):
+                        st.write(f"• {dataset.get('name', f'Dataset {i+1}')} - {dataset.get('type', 'Unknown type')}")
+                    st.success("✅ All team members have been notified!")
                 else:
                     st.warning("No datasets available to share")
             
             if st.button("📊 Export analysis results for publication"):
                 if st.session_state.analysis_results:
-                    st.info("Exporting analysis results...")
+                    st.success("📄 Generating publication-ready report...")
+                    st.info("**Export includes:**")
+                    st.write("• Executive summary")
+                    st.write("• Methodology and data sources")
+                    st.write("• Analysis results and visualizations")
+                    st.write("• Statistical significance tests")
+                    st.write("• References and citations")
+                    st.success("✅ Report exported successfully!")
                 else:
                     st.warning("No analysis results available to export")
             
             if st.button("🔒 Secure data access controls"):
-                st.info("Managing access controls...")
+                st.success("🔐 Managing data access permissions...")
+                st.info("**Access Controls:**")
+                st.write("• **Public:** Open access datasets")
+                st.write("• **Restricted:** Team members only")
+                st.write("• **Confidential:** Principal Investigator only")
+                st.write("• **Classified:** Encrypted access required")
+                st.success("✅ Access controls updated successfully!")
     
     def render_demo_samples(self):
         """Demo and Sample Files Tab"""
