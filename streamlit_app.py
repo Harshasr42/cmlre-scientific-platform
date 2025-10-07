@@ -1121,104 +1121,11 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                     # Check if real otolith image exists
                     import os
                     
-                    # Debug: Show current directory and files
-                    st.write("**Debug - Current directory files:**")
-                    try:
-                        current_files = os.listdir(".")
-                        st.write(f"Files in current directory: {current_files}")
-                    except:
-                        st.write("Could not list current directory")
+                    # Use the specific image path you provide
+                    real_otolith_path = "sample_data/otolith_specimens/real_otolith_specimen.png"
                     
-                    real_otolith_paths = [
-                        "sample_data/otolith_specimens/real_otolith_specimen.png",
-                        "sample_data/otolith_specimens/real_otolith_specimen.jpg",
-                        "sample_data/otolith_specimens/real_otolith_specimens/real_otolith_specimen.jpeg",
-                        "real_otolith_specimen.png",
-                        "real_otolith_specimen.jpg",
-                        "real_otolith_specimen.jpeg"
-                    ]
-                    
-                    real_otolith_found = False
-                    real_image_path = None
-                    
-                    # Check specific paths
-                    for path in real_otolith_paths:
-                        if os.path.exists(path):
-                            real_otolith_found = True
-                            real_image_path = path
-                            st.info(f"🎯 **Real otolith specimen detected!** Using: `{path}`")
-                            st.write("**Upload your real otolith image to:** `sample_data/otolith_specimens/real_otolith_specimen.png`")
-                            break
-                    
-                    # Also check for any PNG/JPG files in the current directory
-                    if not real_otolith_found:
-                        try:
-                            for file in os.listdir("."):
-                                if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                                    st.write(f"Found image file: {file}")
-                                    if 'otolith' in file.lower() or 'demo' in file.lower():
-                                        real_otolith_found = True
-                                        real_image_path = file
-                                        st.info(f"🎯 **Real otolith specimen detected!** Using: `{file}`")
-                                        break
-                        except Exception as e:
-                            st.write(f"Error listing directory: {e}")
-                    
-                    # Force detection for testing
-                    if not real_otolith_found:
-                        st.warning("⚠️ **No real otolith image found.** Please upload your image to the platform.")
-                        st.write("**To use your real otolith image:**")
-                        st.write("1. Upload your image using the file uploader below")
-                        st.write("2. Or place it in the project directory as 'real_otolith_specimen.png'")
-                        st.write("3. Refresh the page to use your real image")
-                        
-                        # Add immediate file uploader
-                        st.write("**Upload your real otolith image now:**")
-                        uploaded_file = st.file_uploader(
-                            "Choose an otolith image file",
-                            type=['png', 'jpg', 'jpeg'],
-                            key="real_otolith_upload"
-                        )
-                        
-                        if uploaded_file is not None:
-                            st.success("🎯 **Real otolith image uploaded!**")
-                            
-                            # Show the uploaded image
-                            st.write("**Your Uploaded Otolith Image:**")
-                            st.image(uploaded_file, caption="Your uploaded real otolith specimen", use_column_width=True)
-                            
-                            # Download button for uploaded image
-                            st.download_button(
-                                label="📥 Download Your Real Otolith Image",
-                                data=uploaded_file.getvalue(),
-                                file_name="your_real_otolith_specimen.png",
-                                mime="image/png"
-                            )
-                            
-                            # Analysis button for uploaded image
-                            if st.button("🔬 Analyze Your Real Otolith Image", key="analyze_uploaded_otolith"):
-                                st.success("🔬 **Analyzing your uploaded otolith image...**")
-                                
-                                # Perform analysis on uploaded image
-                                st.write("**Real Otolith Analysis Results:**")
-                                st.write("• **Species:** Lutjanus argentimaculatus (Red Snapper)")
-                                st.write("• **Age:** 2-3 years (based on growth rings)")
-                                st.write("• **Size:** 45.2 mm² area")
-                                st.write("• **Growth Rings:** 6 visible rings")
-                                st.write("• **Confidence:** 94.2%")
-                                st.write("• **Morphology:** Typical lateral view with sulcus")
-                                
-                                # Add to analysis results
-                                st.session_state.analysis_results.append({
-                                    'type': 'Real Otolith Analysis',
-                                    'species': 'Lutjanus argentimaculatus',
-                                    'age': '2-3 years',
-                                    'size': '45.2 mm²',
-                                    'confidence': 94.2,
-                                    'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                })
-                                
-                                st.success("✅ **Real otolith analysis completed!**")
+                    real_otolith_found = os.path.exists(real_otolith_path)
+                    real_image_path = real_otolith_path if real_otolith_found else None
                     
                     # Always show download button for the real image (if available) or fallback
                     if real_otolith_found and real_image_path:
@@ -1227,7 +1134,7 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                             real_image_data = f.read()
                         
                         st.download_button(
-                            label="📥 Download Real Otolith Image",
+                            label="📥 Download Demo Otolith Image",
                             data=real_image_data,
                             file_name="real_otolith_specimen.png",
                             mime="image/png"
