@@ -108,6 +108,59 @@ class CMLREScientificPlatform:
         with col1:
             st.subheader("🔗 Data Sources")
             
+            # Demo section
+            with st.expander("🎯 Demo Data Integration", expanded=True):
+                st.write("**Try the demo with sample datasets:**")
+                
+                # Demo fish abundance data
+                demo_abundance_content = """species,latitude,longitude,abundance,date,method,size_cm,weight_g
+Lutjanus argentimaculatus,12.5,74.5,15,2024-01-01,visual_count,45.2,1250
+Epinephelus coioides,12.6,74.6,8,2024-01-01,visual_count,38.7,980
+Siganus canaliculatus,12.4,74.4,23,2024-01-01,visual_count,25.3,450
+Lutjanus argentimaculatus,12.7,74.7,12,2024-01-02,visual_count,42.8,1100
+Epinephelus coioides,12.5,74.5,6,2024-01-02,visual_count,35.4,850
+Siganus canaliculatus,12.6,74.6,19,2024-01-02,visual_count,24.1,420
+Lutjanus argentimaculatus,12.4,74.4,18,2024-01-03,visual_count,47.1,1350
+Epinephelus coioides,12.7,74.7,10,2024-01-03,visual_count,41.2,1050
+Siganus canaliculatus,12.5,74.5,21,2024-01-03,visual_count,26.7,480
+Lutjanus argentimaculatus,12.6,74.6,14,2024-01-04,visual_count,44.3,1200"""
+                
+                col_demo1, col_demo2 = st.columns(2)
+                with col_demo1:
+                    st.download_button(
+                        label="📥 Download Demo Fish Abundance Data",
+                        data=demo_abundance_content,
+                        file_name="demo_fish_abundance.csv",
+                        mime="text/csv"
+                    )
+                
+                with col_demo2:
+                    if st.button("📊 Run Demo Integration", type="primary"):
+                        # Run demo integration
+                        demo_integration_result = [
+                            {
+                                'name': 'demo_fish_abundance.csv',
+                                'type': 'Fish Abundance',
+                                'records': 10,
+                                'columns': ['species', 'latitude', 'longitude', 'abundance', 'date', 'method', 'size_cm', 'weight_g'],
+                                'quality_score': 95.0,
+                                'validation': {'valid': True, 'message': 'Valid fish abundance data'}
+                            }
+                        ]
+                        
+                        st.session_state.datasets = demo_integration_result
+                        st.success("✅ Demo data integration completed!")
+                        
+                        # Show results
+                        st.write("**Integration Results:**")
+                        for dataset in demo_integration_result:
+                            st.write(f"**Dataset:** {dataset['name']}")
+                            st.write(f"**Type:** {dataset['type']}")
+                            st.write(f"**Records:** {dataset['records']}")
+                            st.write(f"**Quality Score:** {dataset['quality_score']}%")
+                            st.success(f"✅ {dataset['validation']['message']}")
+            
+            # Regular data integration
             # Data source selection
             st.write("**Select Data Sources:**")
             data_sources = st.multiselect(
@@ -358,7 +411,74 @@ class CMLREScientificPlatform:
         with col2:
             st.subheader("🧬 eDNA Analysis")
             
-            # eDNA analysis
+            # Demo section
+            with st.expander("🎯 Demo eDNA Analysis", expanded=True):
+                st.write("**Try the demo with sample data:**")
+                
+                # Demo eDNA file
+                demo_edna_content = """>Lutjanus_argentimaculatus_COI_001
+ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+>Epinephelus_coioides_COI_002
+GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAG
+>Siganus_canaliculatus_COI_003
+TACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACGATACG
+>Lutjanus_argentimaculatus_COI_004
+CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT
+>Epinephelus_coioides_COI_005
+GATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATC"""
+                
+                col_demo1, col_demo2 = st.columns(2)
+                with col_demo1:
+                    st.download_button(
+                        label="📥 Download Demo eDNA File",
+                        data=demo_edna_content,
+                        file_name="demo_edna_sequences.fasta",
+                        mime="text/plain"
+                    )
+                
+                with col_demo2:
+                    if st.button("🔬 Run Demo Analysis", type="primary"):
+                        # Run demo analysis
+                        demo_result = {
+                            'species_count': 3,
+                            'total_reads': 15420,
+                            'species_detected': [
+                                'Lutjanus argentimaculatus (Mangrove Red Snapper)',
+                                'Epinephelus coioides (Orange-spotted Grouper)', 
+                                'Siganus canaliculatus (White-spotted Rabbitfish)'
+                            ],
+                            'confidence': 0.8,
+                            'read_counts': {
+                                'Lutjanus argentimaculatus': 6240,
+                                'Epinephelus coioides': 4830,
+                                'Siganus canaliculatus': 4350
+                            },
+                            'diversity_index': 0.847,
+                            'sample_quality': 'High'
+                        }
+                        
+                        st.session_state.edna_results = demo_result
+                        st.success("✅ Demo eDNA analysis completed!")
+                        st.info(f"**Detected Species:** {demo_result['species_count']} marine species identified")
+                        
+                        # Show detailed results
+                        st.write("**Species Detected:**")
+                        for species in demo_result['species_detected']:
+                            st.write(f"• {species}")
+                        
+                        st.write("**Read Counts:**")
+                        for species, reads in demo_result['read_counts'].items():
+                            st.write(f"• {species}: {reads:,} reads")
+                        
+                        col_metrics1, col_metrics2 = st.columns(2)
+                        with col_metrics1:
+                            st.metric("Total Reads", f"{demo_result['total_reads']:,}")
+                            st.metric("Diversity Index", f"{demo_result['diversity_index']:.3f}")
+                        with col_metrics2:
+                            st.metric("Sample Quality", demo_result['sample_quality'])
+                            st.metric("Confidence", f"{demo_result['confidence']:.1%}")
+            
+            # Regular eDNA analysis
             st.write("**Environmental DNA Analysis:**")
             sample_type = st.selectbox("Sample Type", ["Water", "Sediment", "Tissue", "Biofilm"])
             sample_volume = st.number_input("Sample Volume (ml)", min_value=1, max_value=1000, value=100)
@@ -529,7 +649,50 @@ class CMLREScientificPlatform:
         with col1:
             st.subheader("📷 Image Upload")
             
-            # Image upload
+            # Demo section
+            with st.expander("🎯 Demo Otolith Analysis", expanded=True):
+                st.write("**Try the demo with sample otolith data:**")
+                
+                col_demo1, col_demo2 = st.columns(2)
+                with col_demo1:
+                    st.write("**Demo Otolith Image:**")
+                    st.info("📷 Sample otolith image (simulated)")
+                    st.write("**Species:** Lutjanus argentimaculatus")
+                    st.write("**Age:** 2-3 years")
+                    st.write("**Size:** 45.2 mm² area")
+                
+                with col_demo2:
+                    if st.button("🔬 Run Demo Analysis", type="primary"):
+                        # Run demo analysis
+                        demo_otolith_result = {
+                            'area': 45.2,
+                            'perimeter': 28.7,
+                            'aspect_ratio': 1.8,
+                            'circularity': 0.75,
+                            'roundness': 0.82,
+                            'solidity': 0.91,
+                            'age_estimate': '2-3 years',
+                            'growth_rings': 8,
+                            'species_likelihood': 'Lutjanus argentimaculatus (85%)',
+                            'confidence': 'High'
+                        }
+                        
+                        st.session_state.otolith_results = demo_otolith_result
+                        st.success("✅ Demo otolith analysis completed!")
+                        
+                        # Show detailed results
+                        st.write("**Morphometric Analysis Results:**")
+                        for key, value in demo_otolith_result.items():
+                            if key not in ['age_estimate', 'growth_rings', 'species_likelihood', 'confidence']:
+                                st.metric(key.replace('_', ' ').title(), f"{value:.3f}")
+                        
+                        st.write("**Additional Information:**")
+                        st.write(f"**Age Estimate:** {demo_otolith_result['age_estimate']}")
+                        st.write(f"**Growth Rings:** {demo_otolith_result['growth_rings']}")
+                        st.write(f"**Species Likelihood:** {demo_otolith_result['species_likelihood']}")
+                        st.write(f"**Confidence:** {demo_otolith_result['confidence']}")
+            
+            # Regular otolith analysis
             uploaded_file = st.file_uploader("Upload otolith image", type=['png', 'jpg', 'jpeg'], key="otolith_image")
             
             if uploaded_file:
@@ -643,7 +806,86 @@ class CMLREScientificPlatform:
         """Oceanographic Data Analysis"""
         st.header("🌊 Oceanographic Data Analysis")
         
-        # Data upload section
+        # Demo section
+        with st.expander("🎯 Demo Oceanographic Analysis", expanded=True):
+            st.write("**Try the demo with sample oceanographic data:**")
+            
+            # Demo oceanographic data
+            demo_ocean_content = """date,temperature,salinity,oxygen,ph,chlorophyll,latitude,longitude
+2024-01-01,28.5,35.2,6.8,8.1,2.3,12.5,74.5
+2024-01-02,28.7,35.1,6.9,8.0,2.4,12.6,74.6
+2024-01-03,28.3,35.3,6.7,8.2,2.2,12.4,74.4
+2024-01-04,28.9,35.0,7.0,8.1,2.5,12.7,74.7
+2024-01-05,28.6,35.2,6.8,8.0,2.3,12.5,74.5
+2024-01-06,28.4,35.1,6.9,8.1,2.4,12.6,74.6
+2024-01-07,28.8,35.3,6.7,8.2,2.2,12.4,74.4
+2024-01-08,28.2,35.0,7.1,8.0,2.6,12.7,74.7
+2024-01-09,28.5,35.2,6.8,8.1,2.3,12.5,74.5
+2024-01-10,28.7,35.1,6.9,8.0,2.4,12.6,74.6"""
+            
+            col_demo1, col_demo2 = st.columns(2)
+            with col_demo1:
+                st.download_button(
+                    label="📥 Download Demo Oceanographic Data",
+                    data=demo_ocean_content,
+                    file_name="demo_oceanographic_data.csv",
+                    mime="text/csv"
+                )
+            
+            with col_demo2:
+                if st.button("🌊 Run Demo Analysis", type="primary"):
+                    # Run demo analysis
+                    demo_ocean_result = {
+                        'temperature_stats': {
+                            'mean': 28.6,
+                            'min': 28.2,
+                            'max': 28.9,
+                            'std': 0.2
+                        },
+                        'salinity_stats': {
+                            'mean': 35.1,
+                            'min': 35.0,
+                            'max': 35.3,
+                            'std': 0.1
+                        },
+                        'oxygen_stats': {
+                            'mean': 6.8,
+                            'min': 6.7,
+                            'max': 7.1,
+                            'std': 0.1
+                        },
+                        'data_quality': 92.5,
+                        'records': 10,
+                        'analysis_summary': 'Arabian Sea coastal waters - healthy marine environment',
+                        'recommendations': [
+                            'Temperature within normal range for tropical waters',
+                            'Salinity indicates good water quality',
+                            'Oxygen levels support marine life',
+                            'Continue monitoring for seasonal variations'
+                        ]
+                    }
+                    
+                    st.session_state.oceanography_data = demo_ocean_result
+                    st.success("✅ Demo oceanographic analysis completed!")
+                    
+                    # Show detailed results
+                    st.write("**Environmental Parameters:**")
+                    col_temp, col_sal, col_oxy = st.columns(3)
+                    with col_temp:
+                        st.metric("Sea Surface Temperature", f"{demo_ocean_result['temperature_stats']['mean']:.1f}°C")
+                    with col_sal:
+                        st.metric("Salinity", f"{demo_ocean_result['salinity_stats']['mean']:.1f} PSU")
+                    with col_oxy:
+                        st.metric("Dissolved Oxygen", f"{demo_ocean_result['oxygen_stats']['mean']:.1f} mg/L")
+                    
+                    st.write("**Analysis Summary:**")
+                    st.info(f"**{demo_ocean_result['analysis_summary']}**")
+                    
+                    st.write("**Recommendations:**")
+                    for rec in demo_ocean_result['recommendations']:
+                        st.write(f"• {rec}")
+        
+        # Regular oceanographic analysis
         st.subheader("📊 Upload Oceanographic Data")
         
         ocean_data_file = st.file_uploader(
