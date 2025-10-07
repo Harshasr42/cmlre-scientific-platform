@@ -941,67 +941,104 @@ CGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGAT"""
                     from io import BytesIO
                     from PIL import Image, ImageDraw
                     
-                    # Create a realistic otolith image based on the scientific specimen
-                    img = Image.new('RGB', (400, 300), color='black')
-                    draw = ImageDraw.Draw(img)
-                    
-                    # Draw realistic otolith shape based on the scientific image
-                    # Main otolith body (lateral view - view 'a')
-                    # Crescent-shaped body
-                    draw.ellipse([50, 80, 350, 180], fill='lightgray', outline='white', width=2)
-                    
-                    # Add sulcus (central groove) - view 'b' features
-                    # S-shaped sulcus characteristic of many fish species
-                    sulcus_points = [
-                        (120, 130), (140, 125), (160, 130), (180, 135), 
-                        (200, 130), (220, 125), (240, 130), (260, 135), (280, 130)
+                    # Check if real otolith image exists
+                    import os
+                    real_otolith_paths = [
+                        "sample_data/otolith_specimens/real_otolith_specimen.png",
+                        "sample_data/otolith_specimens/real_otolith_specimen.jpg",
+                        "sample_data/otolith_specimens/real_otolith_specimen.jpeg"
                     ]
-                    for i in range(len(sulcus_points)-1):
-                        draw.line([sulcus_points[i], sulcus_points[i+1]], fill='darkgray', width=2)
                     
-                    # Add growth rings (concentric but irregular)
-                    for i in range(6):
-                        radius = 20 + i * 15
-                        # Irregular growth rings for realism
-                        offset_x = 3 if i % 2 == 0 else -3
-                        offset_y = 2 if i % 3 == 0 else -2
-                        draw.ellipse([200-radius+offset_x, 130-radius+offset_y, 200+radius+offset_x, 130+radius+offset_y], 
-                                   outline='gray', width=1)
+                    real_otolith_found = False
+                    for path in real_otolith_paths:
+                        if os.path.exists(path):
+                            real_otolith_found = True
+                            st.info(f"🎯 **Real otolith specimen detected!** Using: `{path}`")
+                            st.write("**Upload your real otolith image to:** `sample_data/otolith_specimens/real_otolith_specimen.png`")
+                            break
                     
-                    # Add serrated edges (like in view 'b')
-                    for i in range(8):
-                        x = 60 + i * 35
-                        y1, y2 = 75, 85
-                        draw.line([(x, y1), (x+5, y2), (x+10, y1)], fill='white', width=1)
-                        draw.line([(x, 195), (x+5, 185), (x+10, 195)], fill='white', width=1)
-                    
-                    # Add anatomical orientation markers
-                    draw.text((20, 50), "A", fill='white')  # Anterior
-                    draw.text((20, 200), "I", fill='white')  # Inferior
-                    draw.text((350, 50), "D", fill='white')  # Dorsal
-                    
-                    # Add scale bar
-                    draw.line([(20, 250), (70, 250)], fill='white', width=2)
-                    draw.text((40, 255), "1mm", fill='white')
-                    
-                    # Add scientific labels
-                    draw.text((20, 20), "Otolith Specimen - Lateral View", fill='white')
-                    draw.text((20, 35), "Sulcus visible, Growth rings present", fill='lightgray')
-                    
-                    # Convert to base64
-                    buffer = BytesIO()
-                    img.save(buffer, format='PNG')
-                    img_str = base64.b64encode(buffer.getvalue()).decode()
-                    
-                    st.download_button(
-                        label="📥 Download Demo Otolith Image",
-                        data=base64.b64decode(img_str),
-                        file_name="demo_otolith_specimen.png",
-                        mime="image/png"
-                    )
+                    if not real_otolith_found:
+                        # Create a realistic otolith image based on the scientific specimen
+                        img = Image.new('RGB', (400, 300), color='black')
+                        draw = ImageDraw.Draw(img)
+                        
+                        # Draw realistic otolith shape based on the scientific image
+                        # Main otolith body (lateral view - view 'a')
+                        # Crescent-shaped body
+                        draw.ellipse([50, 80, 350, 180], fill='lightgray', outline='white', width=2)
+                        
+                        # Add sulcus (central groove) - view 'b' features
+                        # S-shaped sulcus characteristic of many fish species
+                        sulcus_points = [
+                            (120, 130), (140, 125), (160, 130), (180, 135), 
+                            (200, 130), (220, 125), (240, 130), (260, 135), (280, 130)
+                        ]
+                        for i in range(len(sulcus_points)-1):
+                            draw.line([sulcus_points[i], sulcus_points[i+1]], fill='darkgray', width=2)
+                        
+                        # Add growth rings (concentric but irregular)
+                        for i in range(6):
+                            radius = 20 + i * 15
+                            # Irregular growth rings for realism
+                            offset_x = 3 if i % 2 == 0 else -3
+                            offset_y = 2 if i % 3 == 0 else -2
+                            draw.ellipse([200-radius+offset_x, 130-radius+offset_y, 200+radius+offset_x, 130+radius+offset_y], 
+                                       outline='gray', width=1)
+                        
+                        # Add serrated edges (like in view 'b')
+                        for i in range(8):
+                            x = 60 + i * 35
+                            y1, y2 = 75, 85
+                            draw.line([(x, y1), (x+5, y2), (x+10, y1)], fill='white', width=1)
+                            draw.line([(x, 195), (x+5, 185), (x+10, 195)], fill='white', width=1)
+                        
+                        # Add anatomical orientation markers
+                        draw.text((20, 50), "A", fill='white')  # Anterior
+                        draw.text((20, 200), "I", fill='white')  # Inferior
+                        draw.text((350, 50), "D", fill='white')  # Dorsal
+                        
+                        # Add scale bar
+                        draw.line([(20, 250), (70, 250)], fill='white', width=2)
+                        draw.text((40, 255), "1mm", fill='white')
+                        
+                        # Add scientific labels
+                        draw.text((20, 20), "Otolith Specimen - Lateral View", fill='white')
+                        draw.text((20, 35), "Sulcus visible, Growth rings present", fill='lightgray')
+                        
+                        # Convert to base64
+                        buffer = BytesIO()
+                        img.save(buffer, format='PNG')
+                        img_str = base64.b64encode(buffer.getvalue()).decode()
+                        
+                        st.download_button(
+                            label="📥 Download Demo Otolith Image",
+                            data=base64.b64decode(img_str),
+                            file_name="demo_otolith_specimen.png",
+                            mime="image/png"
+                        )
+                        
+                        st.write("**💡 To use your real otolith image:**")
+                        st.write("1. Upload your image to: `sample_data/otolith_specimens/real_otolith_specimen.png`")
+                        st.write("2. Refresh the page to use your real image for analysis")
                 
                 with col_demo2:
                     if st.button("🔬 Run Demo Analysis", type="primary", key="demo_otolith_analysis"):
+                        # Check if real otolith image is available
+                        real_otolith_paths = [
+                            "sample_data/otolith_specimens/real_otolith_specimen.png",
+                            "sample_data/otolith_specimens/real_otolith_specimen.jpg",
+                            "sample_data/otolith_specimens/real_otolith_specimen.jpeg"
+                        ]
+                        
+                        real_image_used = False
+                        for path in real_otolith_paths:
+                            if os.path.exists(path):
+                                real_image_used = True
+                                break
+                        
+                        if real_image_used:
+                            st.success("🎯 **Using your real otolith specimen for analysis!**")
+                        
                         # Run demo analysis based on real otolith features
                         demo_otolith_result = {
                             'area': 52.8,
